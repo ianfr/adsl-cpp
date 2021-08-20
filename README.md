@@ -5,8 +5,8 @@ This C++17 project is a library intended for fast, accurate, idiomatic data proc
 **adsl** is built specifically to work with datasets of floating-point values (so things like dates should be mapped to *double*s by the user beforehand).
 
 There are two main classes in **adsl**:
-* DataList - A thin wrapper around std::vector<double>
-* DataFrame - A thin wrapper around std::vector<DataList>
+* DataList - A thin wrapper around std::vector\<double\>
+* DataFrame - A thin wrapper around std::vector\<DataList\>
 
 A cornerstone of the project is the ability to chain together operations on DataFrames and DataLists using operator overloading and currying with lambdas. Anyone familiar with the R pipe operator %>% or UNIX-style pipe operator | will feel at home. An example is below to gather and print all values in a DataList greater than 2:
 ```c
