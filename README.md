@@ -16,6 +16,13 @@ auto cond = [](double x) {
 };
 DataList filtered = first + adsl::filter(cond);
 cout << filtered.str();
+/*
+[BEGIN DataList]
+Name: hi
+Data:
+3 4
+[END DataList]
+*/
 ```
 
 Right now it is a Visual Studio project (and hence uses the MSVC compiler). In the future, support will be extended to GCC or Clang (for \*NIX-like platforms including MacOS and the Windows Subsystem for Linux).
