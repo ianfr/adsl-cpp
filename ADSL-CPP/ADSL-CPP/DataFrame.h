@@ -29,8 +29,20 @@ namespace adsl {
 		// String representation
 		std::string str();
 
-		// Function chaining operator
+		// Function chaining operators
+
+		// DataList <- DataList
 		DataList operator+ (std::function<DataList(DataList&)> f) {
+			return f(*this);
+		}
+
+		// double <- DataList
+		double operator+ (std::function<double(DataList&)> f) {
+			return f(*this);
+		}
+
+		// string <- DataList
+		std::string operator+ (std::function<std::string(DataList&)> f) {
 			return f(*this);
 		}
 

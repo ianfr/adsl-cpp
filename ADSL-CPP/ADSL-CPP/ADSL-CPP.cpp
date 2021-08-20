@@ -5,6 +5,7 @@
 #include "DataFrame.h"
 #include "Ops.h"
 #include "Util.h"
+#include "STL.h"
 
 using namespace std;
 using adsl::DataFrame;
@@ -43,6 +44,21 @@ int main() {
     // Test reading in a CSV file
     DataFrame df1 = adsl::loadFromCSV("testMat.csv", ",", true);
     cout << df1.str();
+
+    // Sum a DataList
+    cout << first + adsl::sum;
+
+    // Print a DataList (in chain)
+    cout << first + adsl::filterLess(3) + adsl::str;
+
+    // Test transform
+    auto squareX = [](double x) {
+        return x * x;
+    };
+    cout << first + adsl::transform(squareX) + adsl::str;
+
+    // Mapreduce!
+    cout << first + adsl::transform(squareX) + adsl::sum;
 }
 
 
