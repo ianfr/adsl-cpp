@@ -28,7 +28,7 @@ Data:
 Right now it is a Visual Studio project (and hence uses the MSVC compiler). In the future, support will be extended to GCC or Clang (for \*NIX-like platforms including MacOS and the Windows Subsystem for Linux).
 
 ## Planned Work:
-* Create a function for loading in data from a CSV file
+* [DONE] Create a function for loading in data from a CSV file
 * Create a class DataFrameList for working with a vector of DataFrames
 * Include a library of functions which are wrappers around STL functions like accumulate, sort, etc
 * Include a library of basic statistical functions
