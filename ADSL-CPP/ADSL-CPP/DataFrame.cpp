@@ -71,6 +71,14 @@ void DataFrame::addCol(DataList& refCol) {
 	m_data.emplace_back(refCol);
 }
 
+void DataFrame::appendToCol(int index, double value) {
+	m_data[index].vals.push_back(value);
+}
+
+void DataFrame::changeColName(int index, std::string value) {
+	m_data[index].name = value;
+}
+
 //void DataFrame::addCol(vd vec&, std::string vecName = "") {
 //	m_data.emplace_back(DataList(vec, vecName));
 //}

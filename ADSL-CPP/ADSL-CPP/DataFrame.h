@@ -59,6 +59,8 @@ namespace adsl {
 		// Other
 		std::string str();
 		void addCol(DataList& refCol);
+		void appendToCol(int index, double value);
+		void changeColName(int index, std::string value);
 
 		// Function chaining operators
 

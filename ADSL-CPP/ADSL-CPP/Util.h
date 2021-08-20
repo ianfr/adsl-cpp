@@ -1,10 +1,71 @@
 #pragma once
 
-#include <vector>
+#include "DataFrame.h"
+#include <sstream>
+#include <fstream>
 
 namespace adsl {
 
-	template <class T>
+	// adapted from https://www.techiedelight.com/split-string-cpp-using-delimiter/
+	// changed const char to const char* and delim to *delim
+	void tokenize(std::string const& str, const char* delim,
+		std::vector<std::string>& out)
+	{
+		// construct a stream from the string
+		std::stringstream ss(str);
+
+		std::string s;
+		while (std::getline(ss, s, *delim)) {
+			out.push_back(s);
+		}
+	}
+
+	// Loads a DataFrame from a CSV file
+	// Adapted from https://stackoverflow.com/questions/19936483/c-reading-csv-file
+	DataFrame loadFromCSV(std::string filename, std::string delim, bool header) {
+		std::ifstream ifs;
+		ifs.open(filename, std::ifstream::in);
+
+		DataFrame df;
+
+		bool gotNumCols = false;
+		int numCols = 0;
+		std::string line;
+		int lineCounter = 0;
+		while (std::getline(ifs, line)) {
+			std::vector<std::string> lineVec;
+			tokenize(line, delim.c_str(), lineVec);
+
+			// Get the number of columns and initialize
+			if (!gotNumCols) {
+				numCols = lineVec.size();
+				gotNumCols = true;
+				for (int i = 0; i < numCols; i++) {
+					vd tmpvd;
+					DataList tmpDL(tmpvd, "");
+					df.addCol(tmpDL);
+				}
+			}
+
+			if (header && lineCounter == 0) {
+				for (int i = 0; i < numCols; i++) {
+					df.changeColName(i, lineVec[i]);
+				}
+			}
+			else {
+				for (int i = 0; i < numCols; i++) {
+					df.appendToCol(i, std::stod(lineVec[i]));
+				}
+			}
+
+			lineCounter += 1;
+		}
+		return df;
+	}
+
+
+
+	/*template <class T>
 	bool verifyDims(T& matRef) {
 		if (matRef.size() == 0) {
 			return false;
@@ -18,5 +79,5 @@ namespace adsl {
 			}
 		}
 		return true;
-	}
+	}*/
 }
