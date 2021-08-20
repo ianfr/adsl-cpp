@@ -3,18 +3,11 @@
 #include <cassert>
 // adsl includes
 #include "DataFrame.h"
-#include "Util.h"
+#include "Ops.h"
 
 using namespace std;
 using adsl::DataFrame;
 using adsl::DataList;
-
-//auto tryFun = [](adsl::DataFrame& df) {
-//    adsl::DataFrame ret = df;
-//    adsl::vvd tmp = { {1,1,1,1}, {1,1,1,1} };
-//    ret.setDbl(tmp);
-//    return ret;
-//};
 
 int main() {
 
@@ -46,14 +39,6 @@ int main() {
 
     cout << df.str();
 
-    // Use a custom predicate
-    // Test a DataList <- DataFrame <- bool <- string
-    /*
-    auto cond = [](double x) {
-        return x > 2;
-    };
-    DataList filteredStr = first + adsl::filter(cond);
-    */
 }
 
 
