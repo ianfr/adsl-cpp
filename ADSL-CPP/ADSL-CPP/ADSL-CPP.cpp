@@ -4,6 +4,7 @@
 // adsl includes
 #include "DataFrame.h"
 #include "Ops.h"
+#include "Util.h"
 
 using namespace std;
 using adsl::DataFrame;
@@ -39,6 +40,9 @@ int main() {
 
     cout << df.str();
 
+    // Test reading in a CSV file
+    DataFrame df1 = adsl::loadFromCSV("testMat.csv", ",", true);
+    cout << df1.str();
 }
 
 
