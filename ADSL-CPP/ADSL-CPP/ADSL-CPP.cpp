@@ -59,6 +59,9 @@ int main() {
 
     // Mapreduce!
     cout << first + adsl::transform(squareX) + adsl::sum;
+
+    // Write to a CSV
+    adsl::writeToCSV(df1, "df1.csv");
 }
 
 
