@@ -28,9 +28,9 @@ Data:
 Right now it is a Visual Studio project (and hence uses the MSVC compiler). In the future, support will be extended to GCC or Clang (for \*NIX-like platforms including MacOS and the Windows Subsystem for Linux).
 
 ## Planned Work:
-* Add basic plotting capability built around Gnuplot
+* [STARTED] Add basic plotting capability built around Gnuplot
 * [DONE] Create a function for loading in data from a CSV file
 * Create a class DataFrameList for working with a vector of DataFrames
-* [DONE / WIP] Include a library of functions which are wrappers around STL functions like accumulate, sort, etc
+* [STARTED] Include a library of functions which are wrappers around STL functions like accumulate, sort, etc
 * Include a library of basic statistical functions
 * Include a library for working with financial data
