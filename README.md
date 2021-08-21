@@ -1,6 +1,6 @@
 # adsl-cpp: A Data Science Library for C++
 ## Description
-This C++17 project is a library intended for fast, accurate, idiomatic data processing with no dependencies aside from the STL (for now!).
+This C++17 project is a library intended for fast, accurate, idiomatic data processing with no dependencies aside from [Gnuplot (mingw version)](https://sourceforge.net/projects/gnuplot/files/gnuplot/5.4.2/).
 
 **adsl** is built specifically to work with datasets of floating-point values (so things like dates should be mapped to *double*s by the user beforehand).
 
@@ -28,8 +28,9 @@ Data:
 Right now it is a Visual Studio project (and hence uses the MSVC compiler). In the future, support will be extended to GCC or Clang (for \*NIX-like platforms including MacOS and the Windows Subsystem for Linux).
 
 ## Planned Work:
+* Add basic plotting capability built around Gnuplot
 * [DONE] Create a function for loading in data from a CSV file
 * Create a class DataFrameList for working with a vector of DataFrames
-* Include a library of functions which are wrappers around STL functions like accumulate, sort, etc
+* [DONE / WIP] Include a library of functions which are wrappers around STL functions like accumulate, sort, etc
 * Include a library of basic statistical functions
 * Include a library for working with financial data
