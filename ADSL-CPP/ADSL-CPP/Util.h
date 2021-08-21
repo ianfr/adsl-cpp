@@ -21,6 +21,7 @@ namespace adsl {
 	}
 
 	// Loads a DataFrame from a CSV file
+	// TODO: Read in a description after a # symbol
 	// Adapted from https://stackoverflow.com/questions/19936483/c-reading-csv-file
 	DataFrame loadFromCSV(std::string filename, std::string delim, bool header) {
 		std::ifstream ifs;
@@ -61,6 +62,24 @@ namespace adsl {
 			lineCounter += 1;
 		}
 		return df;
+	}
+
+	// Write a DataFrame to a CSV
+	// Use # for the description so gnuplot skips it
+	void writeToCSV(DataFrame& df, std::string filename) {
+		std::ofstream handle;
+		handle.open(filename);
+		auto theData = df.getData();
+		handle << "# " << df.getDesc() << "\n";
+		for (size_t i = 0; i < theData[0].vals.size(); i++) { // rows
+			for (size_t j = 0; j < theData.size() - 1; j++) { // columns - 1
+				//handle << theData[j].vals[i] << ",";
+				handle << theData[j].vals[i] << " ";
+			}
+			// last entry on line needs a \n not a ,
+			handle << theData[theData.size() - 1].vals[i] << "\n";
+		}
+		handle.close();
 	}
 
 
