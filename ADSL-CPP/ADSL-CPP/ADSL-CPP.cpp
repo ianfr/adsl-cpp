@@ -6,6 +6,7 @@
 #include "Ops.h"
 #include "Util.h"
 #include "STL.h"
+#include "Plot.h"
 
 using namespace std;
 using adsl::DataFrame;
@@ -62,6 +63,18 @@ int main() {
 
     // Write to a CSV
     adsl::writeToCSV(df1, "df1.csv");
+
+    // Plot 2D
+    adsl::vd tmp0 = { 1, 2, 3, 4 };
+    adsl::vd tmp1 = { 1, 2, 3, 4 };
+    DataList lst0 (tmp0, "");
+    DataList lst1 (tmp1, "");
+    DataFrame df2;
+    df2.addCol(lst0);
+    df2.addCol(lst1);
+    df2.setDesc("testing plotting 2d");
+    df2 + adsl::scatter2D;
+
 }
 
 

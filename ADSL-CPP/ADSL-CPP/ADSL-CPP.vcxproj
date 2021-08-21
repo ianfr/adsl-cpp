@@ -144,6 +144,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DataFrame.h" />
+    <ClInclude Include="Plot.h" />
     <ClInclude Include="STL.h" />
     <ClInclude Include="Ops.h" />
     <ClInclude Include="Util.h" />

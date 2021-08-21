@@ -71,9 +71,10 @@ namespace adsl {
 		handle.open(filename);
 		auto theData = df.getData();
 		handle << "# " << df.getDesc() << "\n";
-		for (int i = 0; i < theData[0].vals.size(); i++) { // rows
-			for (int j = 0; j < theData.size() - 1; j++) { // columns - 1
-				handle << theData[j].vals[i] << ",";
+		for (size_t i = 0; i < theData[0].vals.size(); i++) { // rows
+			for (size_t j = 0; j < theData.size() - 1; j++) { // columns - 1
+				//handle << theData[j].vals[i] << ",";
+				handle << theData[j].vals[i] << " ";
 			}
 			// last entry on line needs a \n not a ,
 			handle << theData[theData.size() - 1].vals[i] << "\n";

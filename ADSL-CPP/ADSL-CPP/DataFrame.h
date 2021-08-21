@@ -85,6 +85,7 @@ namespace adsl {
 		DataList operator+ (std::function<DataList(DataFrame&)> f) {
 			return f(*this);
 		}
+
 	};
 
 }
