@@ -1,6 +1,12 @@
 # adsl-cpp: A Data Science Library for C++
 ## Description
-This C++17 project is a library intended for fast, accurate, idiomatic data processing with no dependencies aside from [Gnuplot (mingw version)](https://sourceforge.net/projects/gnuplot/files/gnuplot/5.4.2/).
+This C++17 project is a library intended for fast, accurate, idiomatic data processing. Integration with well-established visualization, numerical, and ML libraries is being added.
+
+The following dependencies are required to be installed with the free [vcpkg](https://vcpkg.io/en/getting-started.html) package manager:
+* The GNU Scientific Library (GSL): `.\vcpkg install gsl gsl:x64-windows`
+
+The following dependencies are required to be installed manually:
+* [Gnuplot (mingw version)](https://sourceforge.net/projects/gnuplot/files/gnuplot/5.4.2/). NOTE: make sure to check the box to add gnuplot to the PATH during installation.
 
 **adsl** is built specifically to work with datasets of floating-point values (so things like dates should be mapped to *double*s by the user beforehand).
 
