@@ -11,6 +11,12 @@ namespace adsl {
 
 	// Operations on DataLists
 
+	// Chainable form of .str()
+	// string <- DataList
+	auto str = [](DataList& dl) {
+		return dl.str();
+	};
+
 	// Increment a DataList
 	// DataList <- DataList
 	auto inc = [](DataList& dl) {
