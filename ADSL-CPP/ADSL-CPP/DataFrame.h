@@ -8,6 +8,7 @@
 #include <numeric>
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 namespace adsl {
 
@@ -74,6 +75,7 @@ namespace adsl {
 		void addCol(DataList& refCol);
 		void appendToCol(int index, double value);
 		void changeColName(int index, std::string value);
+		bool verifyDims();
 
 		// Function chaining operators
 
@@ -150,8 +152,30 @@ namespace adsl {
 	}
 
 	// Other
+	bool DataFrame::verifyDims(){
+		auto fetchSize = [](DataList dl) {
+			return dl.vals.size();
+		};
+		std::vector<size_t> sizeVec;
+		std::transform(m_data.begin(), m_data.end(), std::back_inserter(sizeVec), fetchSize); // fetch all sizes
+		if (std::adjacent_find(sizeVec.begin(), sizeVec.end(), std::not_equal_to<>()) == sizeVec.end())
+			return true; // if all sizes are equal
+		return false;
+	}
+
 	void DataFrame::addCol(DataList& refCol) {
-		m_data.emplace_back(refCol);
+		if (m_rows == 0 && m_columns == 0) { // if new
+			m_columns = 1;
+			m_rows = refCol.vals.size();
+			m_data.emplace_back(refCol);
+		}
+		else if (refCol.vals.size() == m_rows) {
+			m_data.emplace_back(refCol);
+			m_columns += 1;
+		}
+		else {
+			std::cout << "[DataFrame::addCol] <<ERROR>> Unable to add column to DataFrame" << std::endl;
+		}
 	}
 
 	void DataFrame::appendToCol(int index, double value) {

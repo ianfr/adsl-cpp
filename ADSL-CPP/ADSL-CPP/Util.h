@@ -61,7 +61,14 @@ namespace adsl {
 
 			lineCounter += 1;
 		}
-		return df;
+		if (df.verifyDims()) {
+			return df;
+		}
+		else {
+			std::cout << "[loadFromCSV] <<ERROR>> DataFrame has mismatched dimensions." << std::endl;
+			DataFrame empty_df;
+			return empty_df;
+		}
 	}
 
 	// Write a DataFrame to a CSV

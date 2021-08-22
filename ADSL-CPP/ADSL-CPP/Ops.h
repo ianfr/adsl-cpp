@@ -80,4 +80,12 @@ namespace adsl {
 		return retFunc;
 	};
 
+	// Vertically combine two DataFrames
+	// DataFrame <- DataFrame <- DataFrame
+	auto combineV = [](DataFrame& df_1) {
+		auto retFunc = [df_1](DataFrame& df) {
+			// TODO
+		};
+	};
+
 }
