@@ -1,3 +1,4 @@
+/*
 #include "DataFrame.h"
 #include <sstream>
 
@@ -84,7 +85,7 @@ void DataFrame::changeColName(int index, std::string value) {
 //}
 
 
-
+*/
 
 
 
