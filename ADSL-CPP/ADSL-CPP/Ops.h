@@ -65,4 +65,19 @@ namespace adsl {
 		return df.getData()[0];
 	};
 
+	// Select relevant columns in a DataFrame
+	// DataFrame <- DataFrame
+	auto select = [](std::vector<std::string> nameVec) {
+		auto retFunc = [nameVec](DataFrame& df) {
+			DataFrame ret;
+			ret.setDesc(df.getDesc());
+			for (DataList dl : df.getData()) {
+				if (std::find(nameVec.begin(), nameVec.end(), dl.name) != nameVec.end())
+					ret.addCol(dl);
+			}
+			return ret;
+		};
+		return retFunc;
+	};
+
 }

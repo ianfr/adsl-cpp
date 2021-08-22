@@ -60,13 +60,18 @@ int main() {
     // Plot 2D
     adsl::vd tmp0 = { 1, 2, 3, 4 };
     adsl::vd tmp1 = { 1, 2, 3, 4 };
-    DataList lst0 (tmp0, "");
-    DataList lst1 (tmp1, "");
+    DataList lst0 (tmp0, "DL 0");
+    DataList lst1 (tmp1, "DL 1");
     DataFrame df2;
     df2.addCol(lst0);
     df2.addCol(lst1);
     df2.setDesc("testing plotting 2d");
     df2 + adsl::scatter2D;
+
+    // Select specific columns
+    auto df3 = df2 + adsl::select({ "DL 1" });
+    cout << df3.str();
+
 
 }
 
