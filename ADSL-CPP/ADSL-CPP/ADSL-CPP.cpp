@@ -72,6 +72,18 @@ int main() {
     auto df3 = df2 + adsl::select({ "DL 1" });
     cout << df3.str();
 
+    // Least-squares
+    tmp0 = { 1, 2, 3, 4 };
+    tmp1 = { 1, 2.2, 3, 3.9 };
+    DataList lst_0(tmp0, "DL 0");
+    DataList lst_1(tmp1, "DL 1");
+    DataFrame df4;
+    df4.addCol(lst_0);
+    df4.addCol(lst_1);
+    df4.setDesc("testing linear fit");
+    auto linFit = df4 + adsl::fitLinear;
+    cout << linFit.str();
+
 
 }
 
