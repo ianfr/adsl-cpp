@@ -83,7 +83,7 @@ int main() {
     df4.setDesc("testing linear fit");
     auto linFit = df4 + adsl::fitLinear;
     cout << linFit.str();
-
+    cout << "prediction at x=5: " << linFit + adsl::evalFit(5);
 
 }
 

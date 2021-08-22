@@ -89,6 +89,11 @@ namespace adsl {
 			return f(*this);
 		}
 
+		// double <- DataFrame
+		double operator+ (std::function<double(DataFrame&)> f) {
+			return f(*this);
+		}
+
 	};
 
 	// DataList
