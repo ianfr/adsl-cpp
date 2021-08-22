@@ -38,5 +38,8 @@
     <ClInclude Include="Plot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ADSL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
