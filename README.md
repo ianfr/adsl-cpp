@@ -1,5 +1,5 @@
 # adsl-cpp: A Data Science Library for C++
-![logo](logo.png)
+![logo](logo_bigger.png)
 ## Description
 The **adsl** C++17 project is a library intended for fast, accurate, idiomatic data processing. Integration with well-established visualization, numerical, and ML libraries is being implemented.
 
