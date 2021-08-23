@@ -17,6 +17,16 @@ namespace adsl {
 		return dl.str();
 	};
 
+	// Append one DataList to another
+	auto append = [](DataList& dl_1) {
+		auto retFunc = [&dl_1](DataList& dl) {
+			vd vec = dl.vals;
+			vec.insert(vec.end(), dl_1.vals.begin(), dl_1.vals.end());
+			return DataList(vec, dl.name);
+		};
+		return retFunc;
+	};
+
 	// Increment a DataList
 	// DataList <- DataList
 	auto inc = [](DataList& dl) {
@@ -80,12 +90,29 @@ namespace adsl {
 		return retFunc;
 	};
 
-	// Vertically combine two DataFrames
+	// Vertically combine two DataFrames (i.e. same # cols, add rows)
+	// The col names and description of df_1 will not be preserved
 	// DataFrame <- DataFrame <- DataFrame
 	auto combineV = [](DataFrame& df_1) {
-		auto retFunc = [df_1](DataFrame& df) {
-			// TODO
+		auto retFunc = [&df_1](DataFrame& df) {
+			DataFrame ret;
+			if (df.getCols() == df_1.getCols()) {
+				for (int i = 0; i < df.getCols(); i++) {
+					DataList theCol = df.getData()[i] + append(df_1.getData()[i]);
+					ret.addCol( theCol );
+				}
+				if (!ret.verifyDims()) {
+					std::cout << "[combineV] <<WARNING>> Dimension verification failed" << std::endl;
+				}
+				ret.setDesc(df.getDesc());
+				return ret;
+			}
+			else {
+				std::cout << "[combineV] <<ERROR>> Unequal column lengths" << std::endl;
+				return ret;
+			}
 		};
+		return retFunc;
 	};
 
 }
