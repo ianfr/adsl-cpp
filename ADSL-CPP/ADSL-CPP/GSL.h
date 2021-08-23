@@ -12,8 +12,8 @@ namespace adsl {
 	auto evalFit = [](double t) {
 		auto retFunc = [t](DataFrame& df) {
 			if (df.getDesc() == "gsl_fit_linear") {
-				double m = df + select({ "slope" }) + getFirst + sum;
-				double b = df + select({ "intercept" }) + getFirst + sum;
+				double m = df + select({ "slope" }) + getFirst + single();
+				double b = df + select({ "intercept" }) + getFirst + single();
 				return (m * t) + b;
 			}
 			else {

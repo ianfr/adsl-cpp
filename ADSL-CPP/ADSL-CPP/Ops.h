@@ -17,6 +17,16 @@ namespace adsl {
 		return dl.str();
 	};
 
+	// Get a single element of a DataList
+	// First element by default
+	// double <- DataList
+	auto single = [](double i = 0) {
+		auto retFunc = [i](DataList& dl) {
+			return dl.vals[i];
+		};
+		return retFunc;
+	};
+
 	// Append one DataList to another
 	auto append = [](DataList& dl_1) {
 		auto retFunc = [&dl_1](DataList& dl) {
@@ -38,7 +48,7 @@ namespace adsl {
 	};
 
 	// Less than filter
-	// function<DataList> <- double
+	// DataList <- DataList <- double
 	auto filterLess = [](double d) {
 		auto retFunc = [d](DataList& dl) {
 			DataList ret;

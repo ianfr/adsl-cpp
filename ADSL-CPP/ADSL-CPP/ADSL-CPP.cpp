@@ -85,7 +85,7 @@ int main() {
     cout << linFit.str();
     cout << "prediction at x=5: " << linFit + adsl::evalFit(5);
 
-    // Combine DataFrames vertically
+    // Combine DataFrames vertically 
     DataFrame df5 = df4 + adsl::combineV(df2);
     cout << "Combining DataFrames verically:\n" << df5.str();
 
