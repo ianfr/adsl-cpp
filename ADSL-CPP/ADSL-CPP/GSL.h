@@ -1,13 +1,15 @@
 #pragma once
 #include <gsl/gsl_fit.h>
 #include <gsl/gsl_statistics.h>
+#include <gsl/gsl_movstat.h>
+#include <gsl/gsl_vector.h>
 #include <cstdlib>
 #include "DataFrame.h"
 #include "Ops.h"
 
 namespace adsl {
 
-	// Evaluate the result of a linear fit at a given point based on the DataFrame description
+	// Evaluate the result of a fit at a given point based on the DataFrame description
 	// double <- DataFrame
 	auto evalFit = [](double t) {
 		auto retFunc = [t](DataFrame& df) {
@@ -63,6 +65,20 @@ namespace adsl {
 			DataFrame empty_df;
 			return empty_df;
 		}
+	};
+
+	// TODO: add more fit types
+
+	// Calculate the moving average of a DataList
+	// DataList <- DataList <- double
+	auto SMA = [](double period) {
+		auto retFunc = [period](DataList& dl) {
+			DataFrame ret;
+			double* input;
+			double* output;
+			// TODO
+		};
+		return retFunc;
 	};
 
  }

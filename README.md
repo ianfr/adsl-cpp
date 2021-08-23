@@ -1,13 +1,18 @@
 # adsl-cpp: A Data Science Library for C++
-![logo](logo_bigger.png)
+![logo](logo.png)
 ## Description
-The ADSL C++17 project is a library intended for fast, accurate, idiomatic data processing. Integration with well-established visualization, numerical, and ML libraries is being implemented.
+The ADSL C++17 project is a library for performant and straightforward data science. ADSL includes:
+
+* A library for manipulating data
+* Scatterplots and other data visualizations _(via Gnuplot)_
+* Statistical routines _(via GSL)_
+* Machine learning routines _(via Dlib)_
 
 At ADSL's core is the `DataFrame` class to work with data sets. `DataFrame` is inspired by R's & Pandas' dataframes and can import data from a CSV file.
 
-A cornerstone of the project is the ability to "chain together" operations on `DataFrame`s (and the `DataList`s within them) with the `+` pipe operator. This is similar to R's pipe operator `%>%` or the UNIX-style pipe `|`.
+A cornerstone of the project is the ability to "chain together" operations on `DataFrame`s (and the `DataList`s within them) with the `+` pipe operator. Data is passed along the chain of commands from left to right, enabling incredibly expressive software development. This is similar to R's pipe operator `%>%` or the UNIX-style pipe `|`.
 
-**Note:** ADSL is for datasets of floating-point values. When ML is added, appropriate conversion functions for other 'discrete' types will be supplied.
+Please note that ADSL is for datasets of floating-point values. When ML is added, appropriate conversion functions for other 'discrete' types like categorical labels will be supplied as necessary.
 
 ## Examples
 
@@ -44,6 +49,13 @@ df2.addCol(lst0);
 df2.addCol(lst1);
 df2.setDesc("Testing plotting 2D"); // DataFrame description
 df2 + adsl::scatter2D; // Plot
+```
+Perform linear regression and print the value of the fitted function at an arbitrary point:
+```cpp
+// Assume 'df' is a 2-column DataFrame defined previously...
+DataFrame linFit = df + adsl::fitLinear;
+// linFit contains coeffs & r-squared
+cout << "Prediction at x=5: " << linFit + adsl::evalFit(5);
 ```
 
 ## Writing your own ADSL chainable functions
@@ -82,20 +94,20 @@ In your extensions, the outer lambda can take in any number of arguments - just 
 
 Right now development is happening in Visual Studio. The library _is_ header-only, so it should compile with any modern C++ compiler on Windows, MacOS, Linux, or UNIX. 
 
-All you need to do to get started with ADSL is `#include "ADSL.h"` and install the dependencies below:
+To get started with ADSL, download the repo and stick it inside of your project. Then add `#include "adsl-cpp/ADSL-CPP/ADSL-CPP/ADSL.h"`to your code and install the dependencies below:
 
-The following dependencies are required to be installed with the free [vcpkg](https://vcpkg.io/en/getting-started.html) package manager:
+The following dependencies are required to be installed (I used the awesome [vcpkg](https://vcpkg.io/en/getting-started.html) package manager):
 * The GNU Scientific Library (GSL): `.\vcpkg install gsl gsl:x64-windows`. [GSL](https://www.gnu.org/software/gsl/#subjects) is a C library with a large collection of numerical routines for everything from least-squares to simulated annealing.
-* [NOT YET] Dlib: `.\vcpkg install dlib dlib:x64-windows`. [Dlib](http://dlib.net/ml.html) is a C++ library containing various numerical routines including many for ML.
-* [NOT YET] TensorFlow: `.\vcpkg install tensorflow-cc tensorflow-cc:x64-windows`. TensorFlow is the famous ML library from Google.
+* Dlib: `.\vcpkg install dlib dlib:x64-windows`. [Dlib](http://dlib.net/ml.html) is a C++ library containing various numerical routines including many for ML.
 
 The following dependencies are required to be installed manually:
 * [Gnuplot (mingw version)](https://sourceforge.net/projects/gnuplot/files/gnuplot/5.4.2/). NOTE: make sure to check the box to add gnuplot to the PATH during installation.
 
-## Planned Work:
-* [STARTED] Add basic plotting capability built around Gnuplot
-* [DONE] Create a function for loading in data from a CSV file
-* Create a class DataFrameList for working with a vector of DataFrames
-* [STARTED] Include a library of functions which are wrappers around STL functions like accumulate, sort, etc
-* [STARTED] Include a library of basic statistical functions
-* Include a library for working with financial data
+## Work in Progress:
+* Adding basic plotting capability built around Gnuplot
+* Provide chainable wrappers around STL functions like accumulate, sort, etc
+* Porting statistical functions from GSL
+
+## Future Work:
+* Incorporate Machine Learning with Dlib
+* `DataFrameList` class for working with lists of DataFrames?
