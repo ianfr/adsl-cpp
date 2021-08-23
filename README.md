@@ -5,7 +5,7 @@ The ADSL C++17 project is a library intended for fast, accurate, idiomatic data 
 
 At ADSL's core is the `DataFrame` class to work with data sets. `DataFrame` is inspired by R's & Pandas' dataframes and can import data from a CSV file.
 
-A cornerstone of the project is the ability to "chain together" operations on `DataFrame`s (and the `DataList`s within them) with the `+` operator. This is similar to R's pipe operator `%>%` or the UNIX-style pipe `|`.
+A cornerstone of the project is the ability to "chain together" operations on `DataFrame`s (and the `DataList`s within them) with the `+` pipe operator. This is similar to R's pipe operator `%>%` or the UNIX-style pipe `|`.
 
 **Note:** ADSL is for datasets of floating-point values. When ML is added, appropriate conversion functions for other 'discrete' types will be supplied.
 
@@ -46,6 +46,38 @@ df2.setDesc("Testing plotting 2D"); // DataFrame description
 df2 + adsl::scatter2D; // Plot
 ```
 
+## Writing your own ADSL chainable functions
+
+Writing a chainable function is incredibly simple: any function returning a `DataList` or `DataFrame` and taking as input a `DataList` or `DataFrame` is chainable. (It's also possible to return `double` or `std::string`, but these kinds of functions can only be used at the end of a chain). 
+
+This might seem limited, but with the power of C++ lambdas you can actually _pass in any kind of input of any type_ you want using a trick called **currying**.
+
+To see an example of currying, take a look at the source for the function `adsl::filterLess(d)` (a function that filters out any values in a `DataList` not less than the input `d`):
+```cpp
+// Less than filter
+// DataList <- DataList <- double
+auto filterLess = [](double d) {
+  auto retFunc = [d](DataList& dl) {
+    DataList ret;
+    ret.name = dl.name;
+    for (double val : dl.vals) {
+      if (val < d)
+        ret.vals.emplace_back(val);
+    }
+    return ret;
+  };
+  return retFunc;
+};
+```
+
+In the example above, we "wrap" a chainable lambda function operating on a `DataList` and returning a `DataList` with another lambda function that takes in a double. The variable `d` is _captured_ by the inner lambda inside of the brackets `[ ]`.
+
+The trick here is that the outer function `filterLess` actually creates and returns the inner function `retFunc` on the spot when called. That's right, a function returning another function!
+
+Thus, the user can supply a custom input `d` and the `+` pipe operator will only be exposed to a valid chainable function. 
+
+In your extensions, the outer lambda can take in any number of arguments - just make sure to capture them inside the inner lambda's brackets `[ ]`. Outer arguments that are `DataFrame`s should be captured by reference in the inner lambda with a `&` like `[&df]`.
+
 ## Installation
 
 Right now development is happening in Visual Studio. The library _is_ header-only, so it should compile with any modern C++ compiler on Windows, MacOS, Linux, or UNIX. 
@@ -65,5 +97,5 @@ The following dependencies are required to be installed manually:
 * [DONE] Create a function for loading in data from a CSV file
 * Create a class DataFrameList for working with a vector of DataFrames
 * [STARTED] Include a library of functions which are wrappers around STL functions like accumulate, sort, etc
-* Include a library of basic statistical functions
+* [STARTED] Include a library of basic statistical functions
 * Include a library for working with financial data
