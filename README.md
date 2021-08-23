@@ -1,7 +1,7 @@
 # adsl-cpp: A Data Science Library for C++
 ![logo](logo.png)
 ## Description
-The ADSL C++17 project is a library for performant and straightforward data science. ADSL includes:
+The ADSL C++ project is a library for performant and straightforward data science. ADSL includes:
 
 * A library for manipulating data
 * Scatterplots and other data visualizations _(via Gnuplot)_
@@ -13,6 +13,15 @@ At ADSL's core is the `DataFrame` class to work with data sets. `DataFrame` is i
 A cornerstone of the project is the ability to "chain together" operations on `DataFrame`s (and the `DataList`s within them) with the `+` pipe operator. Data is passed along the chain of commands from left to right, enabling incredibly expressive software development. This is similar to R's pipe operator `%>%` or the UNIX-style pipe `|`.
 
 Please note that ADSL is for datasets of floating-point values. When ML is added, appropriate conversion functions for other 'discrete' types like categorical labels will be supplied as necessary.
+
+## Files
+* ADSL.h - includes everything else
+* DataFrame.h - class definitions for `DataFrame` and `DataList`
+* Ops.h - basic operations on `DataLists` and `DataFrames`
+* STL.h - wrappers around STL functions like `accumulate` and `transform`
+* GSL.h - wrappers around GSL functions like `gsl_fit_linear`
+* Plot.h - functions for plotting with Gnuplot
+* Util.h - utility functions like those for reading in data from a file
 
 ## Examples
 
@@ -92,7 +101,7 @@ In your extensions, the outer lambda can take in any number of arguments - just 
 
 ## Installation
 
-Right now development is happening in Visual Studio. The library _is_ header-only, so it should compile with any modern C++ compiler on Windows, MacOS, Linux, or UNIX. 
+Right now development is happening in Visual Studio 16 2019. The library _is_ header-only, so it should compile with any modern C++ compiler on Windows, MacOS, Linux, or UNIX. 
 
 To get started with ADSL, download the repo and stick it inside of your project. Then add `#include "adsl-cpp/ADSL-CPP/ADSL-CPP/ADSL.h"`to your code and install the dependencies below:
 
