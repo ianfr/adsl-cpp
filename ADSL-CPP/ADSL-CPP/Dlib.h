@@ -8,7 +8,7 @@
 
 namespace adsl {
 
-	// Run http://dlib.net/svm_c_ex.cpp.html
+	// Run a copy of http://dlib.net/svm_c_ex.cpp.html to test that Dlib is working
 	void dlib_run_svm_c_trainer() {
 		using namespace std;
 		using namespace dlib;
@@ -199,7 +199,6 @@ namespace adsl {
             randomize_samples(samples, labels);
 
             // Split randomized data into training, testing, and validation
-            // TODO: look into removing source after copying to dest one-by-one
             // 50-25-25
             int cutoff0 = (int)(samples.size() * 0.5);
             int cutoff1 = (int)(samples.size() * 0.75);
@@ -219,30 +218,13 @@ namespace adsl {
                     labelsVal.push_back(labels[i]);
                 }
             }
-
-            // find optimal c and gamma values
-            // looks like anything will work, so keep orig from tutorial
             
             svm_c_trainer<kernel_type> trainer;
             typedef decision_function<kernel_type> dec_funct_type;
             typedef normalized_function<dec_funct_type> funct_type;
             funct_type learned_function;
-
-            /*
-            cout << "doing cross validation" << endl;
-            for (double gamma = 0.00001; gamma <= 1; gamma *= 5)
-            {
-                for (double C = 1; C < 100000; C *= 5)
-                {
-                    trainer.set_kernel(kernel_type(gamma));
-                    trainer.set_c(C);
-                    cout << "gamma: " << gamma << "    C: " << C;
-                    cout << "     cross validation accuracy: "
-                        << cross_validate_trainer(trainer, samplesTrain, labelsTrain, 3);
-                }
-            }
-            */
- 
+            
+            // Perform a grid search to find best parameters for the trainer
             cout << "Search for C and gamma based on test accuracy:" << endl;
             for (double gamma = 0.00001; gamma <= 1; gamma *= 5)
             {
@@ -272,7 +254,7 @@ namespace adsl {
                 }
             }
 
-
+            // Best results for Datasets/iris.csv from grid search above
             trainer.set_kernel(kernel_type(1e-05));
             trainer.set_c(3125);
 
@@ -282,7 +264,7 @@ namespace adsl {
             cout << "\nnumber of support vectors in our learned_function is "
                 << learned_function.function.basis_vectors.size() << endl;
             
-            // Test the model with vaildation data
+            // Test the model with validation data
             int correct = 0;
             for (int i = 0; i < samplesVal.size(); i++) {
                 cout << "Observed: " << labelsVal[i] << " Predicted " << learned_function(samplesVal[i]) << endl;

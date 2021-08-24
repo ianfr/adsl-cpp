@@ -92,11 +92,10 @@ int main() {
 
     // Test Dlib
     //cout << "Testing Dlib" << endl;
-    //adsl::dlib_run_svm_c_trainer();
+    adsl::dlib_run_svm_c_trainer();
 
     // Test Dlib classifier
     DataFrame irisData = adsl::loadFromCSV("Datasets/iris.csv", ",", true);
-    //irisData.setNames({ "sepal length", "sepal width", "petal length", "petal width", "class" });
     vector<double> labels = irisData + adsl::select({ "class" }) + adsl::getFirst + adsl::toVec;
     DataFrame feats = irisData + adsl::deselect({ "class" });
     DataFrame classResult = feats + adsl::binaryClassifier( labels );
