@@ -198,25 +198,37 @@ namespace adsl {
             cout << "labels: ";  for (auto a : labels) cout << a << " "; cout << endl;
             randomize_samples(samples, labels);
 
-            // Split randomized data into testing and training
+            // Split randomized data into training, testing, and validation
             // TODO: look into removing source after copying to dest one-by-one
-            int cutoff = (int)(samples.size() * 0.7); // 70-30
-            std::vector<sample_type> samplesTrain, samplesTest;
-            std::vector<double> labelsTrain, labelsTest;
+            // 50-25-25
+            int cutoff0 = (int)(samples.size() * 0.5);
+            int cutoff1 = (int)(samples.size() * 0.75);
+            std::vector<sample_type> samplesTrain, samplesTest, samplesVal;
+            std::vector<double> labelsTrain, labelsTest, labelsVal;
             for (int i = 0; i < samples.size(); i++) {
-                if (i < cutoff) {
+                if (i < cutoff0) {
                     samplesTrain.push_back(samples[i]);
                     labelsTrain.push_back(labels[i]);
                 }
-                else {
+                else if (i < cutoff1) {
                     samplesTest.push_back(samples[i]);
                     labelsTest.push_back(labels[i]);
+                }
+                else {
+                    samplesVal.push_back(samples[i]);
+                    labelsVal.push_back(labels[i]);
                 }
             }
 
             // find optimal c and gamma values
             // looks like anything will work, so keep orig from tutorial
+            
             svm_c_trainer<kernel_type> trainer;
+            typedef decision_function<kernel_type> dec_funct_type;
+            typedef normalized_function<dec_funct_type> funct_type;
+            funct_type learned_function;
+
+            /*
             cout << "doing cross validation" << endl;
             for (double gamma = 0.00001; gamma <= 1; gamma *= 5)
             {
@@ -226,37 +238,65 @@ namespace adsl {
                     trainer.set_c(C);
                     cout << "gamma: " << gamma << "    C: " << C;
                     cout << "     cross validation accuracy: "
-                        << cross_validate_trainer(trainer, samplesTrain, labelsTrain, 10);
+                        << cross_validate_trainer(trainer, samplesTrain, labelsTrain, 3);
+                }
+            }
+            */
+ 
+            cout << "Search for C and gamma based on test accuracy:" << endl;
+            for (double gamma = 0.00001; gamma <= 1; gamma *= 5)
+            {
+                for (double C = 1; C < 100000; C *= 5)
+                {
+                    trainer.set_kernel(kernel_type(gamma));
+                    trainer.set_c(C);
+
+                    learned_function.normalizer = normalizer;  // save normalization information
+                    learned_function.function = trainer.train(samplesTrain, labelsTrain);
+
+                    int correct = 0;
+                    for (int i = 0; i < samplesTest.size(); i++) {
+                        if (learned_function(samplesTest[i]) > 0 && labelsTest[i] > 0) {
+                            correct += 1;
+                        }
+                        else if (learned_function(samplesTest[i]) < 0 && labelsTest[i] < 0) {
+                            correct += 1;
+                        }
+                        else {
+                            //pass
+                        }
+                    }
+                    cout << "gamma: " << gamma << "    C: " << C;
+                    cout << "     test accuracy: "
+                        << ((double)correct / (double)samplesTest.size()) * 100.0 << endl;
                 }
             }
 
-            trainer.set_kernel(kernel_type(0.5));
-            trainer.set_c(10000);
-            typedef decision_function<kernel_type> dec_funct_type;
-            typedef normalized_function<dec_funct_type> funct_type;
 
-            funct_type learned_function;
+            trainer.set_kernel(kernel_type(1e-05));
+            trainer.set_c(3125);
+
             learned_function.normalizer = normalizer;  // save normalization information
             learned_function.function = trainer.train(samplesTrain, labelsTrain); // perform the actual SVM training and save the results
             
             cout << "\nnumber of support vectors in our learned_function is "
                 << learned_function.function.basis_vectors.size() << endl;
             
-            // Test the model
+            // Test the model with vaildation data
             int correct = 0;
-            for (int i = 0; i < samplesTest.size(); i++) {
-                cout << "Observed: " << labelsTest[i] << " Predicted " << learned_function(samplesTest[i]) << endl;
-                if (learned_function(samplesTest[i]) > 0 && labelsTest[i] > 0) {
+            for (int i = 0; i < samplesVal.size(); i++) {
+                cout << "Observed: " << labelsVal[i] << " Predicted " << learned_function(samplesVal[i]) << endl;
+                if (learned_function(samplesVal[i]) > 0 && labelsVal[i] > 0) {
                     correct += 1;
                 }
-                else if (learned_function(samplesTest[i]) < 0 && labelsTest[i] < 0) {
+                else if (learned_function(samplesVal[i]) < 0 && labelsVal[i] < 0) {
                     correct += 1;
                 }
                 else {
                     //pass
                 }
             }
-            cout << "Model accuracy: " << ((double)correct / (double)samplesTest.size()) * 100.0 << endl;
+            cout << "Model validation accuracy: " << ((double)correct / (double)samplesVal.size()) * 100.0 << endl;
 
             DataFrame ret;
             return ret;
