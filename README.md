@@ -118,8 +118,8 @@ The following dependencies are required to be installed manually:
 * Adding basic plotting capability built around Gnuplot
 * Provide chainable wrappers around STL functions like accumulate, sort, etc
 * Porting statistical functions from GSL
+* Incorporate Machine Learning with Dlib
 
 ## Future Work:
-* Incorporate Machine Learning with Dlib
 * Add ARIMA forecasting (probably from scratch with Eigen)
 * `DataFrameList` class for working with lists of DataFrames?
