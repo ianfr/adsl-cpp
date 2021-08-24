@@ -17,6 +17,10 @@ namespace adsl {
 		return dl.str();
 	};
 
+	auto toVec = [](DataList& dl) {
+		return dl.vals;
+	};
+
 	// Get a single element of a DataList
 	// First element by default
 	// double <- DataList
@@ -93,6 +97,21 @@ namespace adsl {
 			ret.setDesc(df.getDesc());
 			for (DataList dl : df.getData()) {
 				if (std::find(nameVec.begin(), nameVec.end(), dl.name) != nameVec.end())
+					ret.addCol(dl);
+			}
+			return ret;
+		};
+		return retFunc;
+	};
+
+	// Select all columns in a DataFrame except those listed in the input
+	// DataFrame <- DataFrame
+	auto deselect = [](std::vector<std::string> nameVec) {
+		auto retFunc = [nameVec](DataFrame& df) {
+			DataFrame ret;
+			ret.setDesc(df.getDesc());
+			for (DataList dl : df.getData()) {
+				if (std::find(nameVec.begin(), nameVec.end(), dl.name) == nameVec.end())
 					ret.addCol(dl);
 			}
 			return ret;

@@ -21,6 +21,7 @@ namespace adsl {
 	}
 
 	// Loads a DataFrame from a CSV file
+	// TODO: Fix breaking on processing empty lines
 	// TODO: Read in a description after a # symbol
 	// Adapted from https://stackoverflow.com/questions/19936483/c-reading-csv-file
 	DataFrame loadFromCSV(std::string filename, std::string delim, bool header) {

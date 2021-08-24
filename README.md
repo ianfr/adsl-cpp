@@ -14,6 +14,8 @@ A cornerstone of the project is the ability to "chain together" operations on `D
 
 Please note that ADSL is for datasets of floating-point values. When ML is added, appropriate conversion functions for other 'discrete' types like categorical labels will be supplied as necessary.
 
+Also, **this library is in an early stage of development.**
+
 ## Files
 * ADSL.h - includes everything else
 * DataFrame.h - class definitions for `DataFrame` and `DataList`
@@ -119,4 +121,5 @@ The following dependencies are required to be installed manually:
 
 ## Future Work:
 * Incorporate Machine Learning with Dlib
+* Add ARIMA forecasting (probably from scratch with Eigen)
 * `DataFrameList` class for working with lists of DataFrames?

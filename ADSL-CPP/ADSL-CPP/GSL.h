@@ -71,6 +71,7 @@ namespace adsl {
 
 	// Calculate the moving average of a DataList
 	// DataList <- DataList <- double
+	/*
 	auto SMA = [](double period) {
 		auto retFunc = [period](DataList& dl) {
 			DataFrame ret;
@@ -80,5 +81,6 @@ namespace adsl {
 		};
 		return retFunc;
 	};
+	*/
 
  }
