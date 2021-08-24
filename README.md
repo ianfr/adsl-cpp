@@ -44,11 +44,6 @@ auto squareX = [](double x) {
 };
 cout << dL + adsl::transform(squareX) + adsl::sum;
 ```
-Increment the first column of a `DataFrame` twice:
-```c
-// assume 'df' is a DataFrame defined previously...
-df = df + adsl::getFirst + adsl::inc + adsl::inc
-```
 Display a scatterplot using Gnuplot behind the scenes:
 ```c
 adsl::vd tmp0 = { 1, 2, 3, 4 };
@@ -67,6 +62,13 @@ Perform linear regression and print the value of the fitted function at an arbit
 DataFrame linFit = df + adsl::fitLinear;
 // linFit contains coeffs & r-squared
 cout << "Prediction at x=5: " << linFit + adsl::evalFit(5);
+```
+Train a binary classifier to predict flower species based on 4 physical measurements [WIP]:
+```cpp
+DataFrame irisData = adsl::loadFromCSV("Datasets/iris.csv", ",", true);
+vector<double> labels = irisData + adsl::select({ "class" }) + adsl::getFirst + adsl::toVec;
+DataFrame feats = irisData + adsl::deselect({ "class" });
+DataFrame classResult = feats + adsl::binaryClassifier( labels );
 ```
 
 ## Writing your own ADSL chainable functions
