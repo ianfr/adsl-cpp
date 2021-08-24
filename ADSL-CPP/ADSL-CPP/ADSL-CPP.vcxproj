@@ -145,6 +145,8 @@
   <ItemGroup>
     <ClInclude Include="DataFrame.h" />
     <ClInclude Include="ADSL.h" />
+    <ClInclude Include="Dlib.h" />
+    <ClInclude Include="DlibConst.h" />
     <ClInclude Include="GSL.h" />
     <ClInclude Include="Plot.h" />
     <ClInclude Include="STL.h" />

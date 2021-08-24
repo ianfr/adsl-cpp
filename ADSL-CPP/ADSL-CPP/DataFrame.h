@@ -48,6 +48,11 @@ namespace adsl {
 			return f(*this);
 		}
 
+		// std::vector<double> <- DataList
+		std::vector<double> operator+ (std::function<std::vector<double>(DataList&)> f) {
+			return f(*this);
+		}
+
 	};
 	
 	typedef std::vector<DataList> vDL;
@@ -65,6 +70,8 @@ namespace adsl {
 		int getCols();
 		std::string getDesc();
 		vDL getData();
+		DataList getData(int col);
+		double getData(int col, int row);
 
 		// Setters
 		void setDesc(std::string s);
@@ -76,6 +83,7 @@ namespace adsl {
 		void appendToCol(int index, double value);
 		void changeColName(int index, std::string value);
 		bool verifyDims();
+		void setNames(std::vector<std::string> names);
 
 		// Function chaining operators
 
@@ -144,6 +152,16 @@ namespace adsl {
 		return m_data;
 	}
 
+	// For now, assume that i is a safe index
+	DataList DataFrame::getData(int col) {
+		return m_data[col];
+	}
+
+	// For now, assume that i and j are safe indices
+	double DataFrame::getData(int col, int row) {
+		return m_data[col].vals[row];
+	}
+
 
 	// Setters
 	void DataFrame::setDesc(std::string s) {
@@ -189,6 +207,13 @@ namespace adsl {
 
 	void DataFrame::changeColName(int index, std::string value) {
 		m_data[index].name = value;
+	}
+
+	void DataFrame::setNames(std::vector<std::string> names) {
+		assert(names.size() == m_columns);
+		for (int i = 0; i < names.size(); i++) {
+			m_data[i].name = names[i];
+		}
 	}
 
 }

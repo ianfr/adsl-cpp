@@ -61,6 +61,7 @@ int main() {
     adsl::vd tmp0 = { 1, 2, 3, 4 };
     adsl::vd tmp1 = { 1, 2, 3, 4 };
     DataList lst0 (tmp0, "DL 0");
+#undef lst1
     DataList lst1 (tmp1, "DL 1");
     DataFrame df2;
     df2.addCol(lst0);
@@ -89,7 +90,18 @@ int main() {
     DataFrame df5 = df4 + adsl::combineV(df2);
     cout << "Combining DataFrames verically:\n" << df5.str();
 
+    // Test Dlib
+    //cout << "Testing Dlib" << endl;
+    adsl::dlib_run_svm_c_trainer();
 
+    // Test Dlib classifier
+    DataFrame irisData = adsl::loadFromCSV("Datasets/iris.csv", ",", true);
+    vector<double> labels = irisData + adsl::select({ "class" }) + adsl::getFirst + adsl::toVec;
+    DataFrame feats = irisData + adsl::deselect({ "class" });
+    DataFrame classResult = feats + adsl::binaryClassifier( labels );
+
+    cout << "Press Enter to exit... ";
+    cin.get();
 }
 
 

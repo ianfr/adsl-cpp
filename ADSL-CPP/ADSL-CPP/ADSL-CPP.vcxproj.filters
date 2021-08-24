@@ -44,5 +44,11 @@
     <ClInclude Include="GSL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Dlib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DlibConst.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
