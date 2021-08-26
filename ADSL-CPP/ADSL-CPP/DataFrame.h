@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <execution>
 
 namespace adsl {
 
@@ -88,7 +89,7 @@ namespace adsl {
 		void addRow(vd row);
 		int getColIndex(std::string colName);
 		void replaceRow(int rowInd, vd theRow);
-		std::vector<int> getSortedIndices(std::string colName);
+		std::vector<int> getSortedIndices(std::string colName, bool parFlag);
 
 		// Function chaining operators
 
@@ -257,16 +258,21 @@ namespace adsl {
 	}
 
 	// Sort the indices of a DataFrame by a certain Column
-	std::vector<int> DataFrame::getSortedIndices(std::string colName) {
+	std::vector<int> DataFrame::getSortedIndices(std::string colName, bool parFlag) {
 		// create a list of indices
 		std::vector<int> indices(m_rows);
 		std::iota(indices.begin(), indices.end(), 0);
-		std::sort(indices.begin(), indices.end(),
-			[&] (const int& a, const int& b)-> bool{
-				// find the correct column index
-				int ind = this->getColIndex(colName);
-				return this->getData(ind, a) > this->getData(ind, b);
-			});
+		auto sortLambda = [&](const int& a, const int& b)-> bool {
+			// find the correct column index
+			int ind = this->getColIndex(colName);
+			return this->getData(ind, a) > this->getData(ind, b);
+		};
+		if (parFlag) {
+			std::sort(std::execution::par, indices.begin(), indices.end(), sortLambda);
+		}
+		else {
+			std::sort(indices.begin(), indices.end(), sortLambda);
+		}
 		return indices;
 	}
 

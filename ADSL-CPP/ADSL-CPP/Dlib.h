@@ -303,6 +303,7 @@ namespace adsl {
                 pop.addRow({ x0[0], x0[1], bestAccuracy});
 
                 // populate the population with random variations on the initial point
+                cout << "Initializing population..." << endl;
                 double percentage = PERC_START;
                 std::random_device seederG;
                 std::mt19937 rngG(seederG());
@@ -310,12 +311,22 @@ namespace adsl {
                 std::random_device seederC;
                 std::mt19937 rngC(seederC());
                 std::uniform_real_distribution<double> disC(-percentage / 100, percentage / 100);
+                std::vector<int> dummyVec(popsize);
+                std::for_each(dummyVec.begin(), dummyVec.end() - 1, [&](auto dummyI) {
+                    double tmpGamma = x0[0] * (1.0 + disG(rngG));
+                    double tmpC = x0[1] * (1.0 + disC(rngC));
+                    double tmpAcc = fitness(tmpGamma, tmpC);
+                    pop.addRow({ tmpGamma, tmpC, tmpAcc });
+                });
+                /*
                 for (int i = 0; i < popsize-1; i++) {
                     double tmpGamma = x0[0] * (1.0 + disG(rngG));
                     double tmpC = x0[1] * (1.0 + disC(rngC));
                     double tmpAcc = fitness(tmpGamma, tmpC);
                     pop.addRow({ tmpGamma, tmpC, tmpAcc });
                 }
+                */
+                cout << "Done initializing population." << endl;
 
                 for (int generations = 0; generations < MAX_GENS; generations++) {
 
@@ -330,7 +341,10 @@ namespace adsl {
                     }
 
                     // rank the population by their fitness
-                    std::vector<int> rankedInds = pop.getSortedIndices("accuracy");
+                    cout << "Ranking..." << endl;
+                    std::vector<int> rankedInds = pop.getSortedIndices("accuracy", PAR_SORT_FLAG);
+                    cout << "Done ranking" << endl;
+                    cout << "Best accuracy during optimizing: " << pop.getData(2, rankedInds[0]) << endl;
 
                     // mutate the top 49.999...% of the population **slightly**
                     int halfMarker = (int)(rankedInds.size() / 2);
@@ -344,6 +358,16 @@ namespace adsl {
 
                     double avgGammaTopHalf = 0; // keep track of this for later
                     double avgCTopHalf = 0; // keep track of this for later
+                    
+                    std::for_each(rankedInds.begin() + 1, rankedInds.begin() + halfMarker - 1, [&](auto& rInd) {
+                        avgGammaTopHalf += pop.getData(gammaInd, rInd);
+                        avgCTopHalf += pop.getData(cInd, rInd);
+                        double tmpGamma = pop.getData(gammaInd, rInd) * (1.0 + disG_1(rngG));
+                        double tmpC = pop.getData(cInd, rInd) * (1.0 + disC_1(rngC));
+                        double tmpAcc = fitness(tmpGamma, tmpC);
+                        pop.replaceRow(rInd, { tmpGamma, tmpC, tmpAcc });
+                     });
+                    /*
                     for (int i = 1; i < halfMarker; i++) {
                         avgGammaTopHalf += pop.getData(gammaInd, rankedInds[i]);
                         avgCTopHalf += pop.getData(cInd, rankedInds[i]);
@@ -352,6 +376,7 @@ namespace adsl {
                         double tmpAcc = fitness(tmpGamma, tmpC);
                         pop.replaceRow(rankedInds[i], { tmpGamma, tmpC, tmpAcc });
                     }
+                    */
 
                     avgGammaTopHalf = avgGammaTopHalf / (double)halfMarker;
                     avgCTopHalf = avgCTopHalf / (double)halfMarker;
@@ -361,27 +386,45 @@ namespace adsl {
                     std::uniform_real_distribution<double> disG_2(-percentage / 100, percentage / 100);
                     std::uniform_real_distribution<double> disC_2(-percentage / 100, percentage / 100);
 
+                    std::for_each(rankedInds.begin() + halfMarker, rankedInds.begin() + threeFourthsMarker - 1, [&](auto& rInd) {
+                        double tmpGamma = avgGammaTopHalf * (1.0 + disG_2(rngG));
+                        double tmpC = avgCTopHalf * (1.0 + disC_2(rngC));
+                        double tmpAcc = fitness(tmpGamma, tmpC);
+                        pop.replaceRow(rInd, { tmpGamma, tmpC, tmpAcc });
+                    });
+
+                    /*
                     for (int i = halfMarker; i < threeFourthsMarker; i++) {
                         double tmpGamma = avgGammaTopHalf * (1.0 + disG_2(rngG));
                         double tmpC = avgCTopHalf * (1.0 + disC_2(rngC));
                         double tmpAcc = fitness(tmpGamma, tmpC);
                         pop.replaceRow(rankedInds[i], { tmpGamma, tmpC, tmpAcc });
                     }
+                    */
 
                     // replace the bottom 25% of the population with purely random solutions
                     std::uniform_real_distribution<double> disG_3(GA_GAMMA_MIN, GA_GAMMA_MAX);
                     std::uniform_real_distribution<double> disC_3(GA_C_MIN, GA_C_MAX);
 
+                    std::for_each(rankedInds.begin() + threeFourthsMarker, rankedInds.end(), [&](auto rInd) {
+                        double tmpGamma = disG_3(rngG);
+                        double tmpC = disC_3(rngC);
+                        double tmpAcc = fitness(tmpGamma, tmpC);
+                        pop.replaceRow(rInd, { tmpGamma, tmpC, tmpAcc });
+                     });
+
+                    /*
                     for (int i = threeFourthsMarker; i < rankedInds.size(); i++) {
                         double tmpGamma = disG_3(rngG);
                         double tmpC = disC_3(rngC);
                         double tmpAcc = fitness(tmpGamma, tmpC);
                         pop.replaceRow(rankedInds[i], { tmpGamma, tmpC, tmpAcc });
                     }
+                    */
 
                 } // end generations loop
 
-                std::vector<int> rankedInds = pop.getSortedIndices("accuracy");
+                std::vector<int> rankedInds = pop.getSortedIndices("accuracy", PAR_SORT_FLAG);
                 return { pop.getData(0, rankedInds[0]), 
                     pop.getData(1, rankedInds[0]),
                     pop.getData(2, rankedInds[0]) };
