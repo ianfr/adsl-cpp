@@ -84,6 +84,11 @@ namespace adsl {
 		void changeColName(int index, std::string value);
 		bool verifyDims();
 		void setNames(std::vector<std::string> names);
+		void init(int numCols);
+		void addRow(vd row);
+		int getColIndex(std::string colName);
+		void replaceRow(int rowInd, vd theRow);
+		std::vector<int> getSortedIndices(std::string colName);
 
 		// Function chaining operators
 
@@ -214,6 +219,55 @@ namespace adsl {
 		for (int i = 0; i < names.size(); i++) {
 			m_data[i].name = names[i];
 		}
+	}
+
+	void DataFrame::init(int numCols) {
+		assert(m_columns == 0);
+		for (int i = 0; i < numCols; i++) {
+			vd tmp;
+			DataList tmpDL(tmp, "");
+			this->addCol(tmpDL);
+		}
+		m_columns = numCols;
+	}
+
+	void DataFrame::addRow(vd theRow) {
+		assert(m_columns == theRow.size());
+		for (int i = 0; i < m_columns; i++) {
+			m_data[i].vals.push_back(theRow[i]);
+		}
+		m_rows += 1;
+	}
+
+	void DataFrame::replaceRow(int rowInd, vd theRow) {
+		assert(m_columns == theRow.size());
+		for (int i = 0; i < m_columns; i++) {
+			m_data[i].vals[rowInd] = theRow[i];
+		}
+	}
+
+	int DataFrame::getColIndex(std::string colName) {
+		int ind;
+		for (ind = 0; ind < m_columns; ind++) {
+			if (m_data[ind].name == colName) {
+				break;
+			}
+		}
+		return ind;
+	}
+
+	// Sort the indices of a DataFrame by a certain Column
+	std::vector<int> DataFrame::getSortedIndices(std::string colName) {
+		// create a list of indices
+		std::vector<int> indices(m_rows);
+		std::iota(indices.begin(), indices.end(), 0);
+		std::sort(indices.begin(), indices.end(),
+			[&] (const int& a, const int& b)-> bool{
+				// find the correct column index
+				int ind = this->getColIndex(colName);
+				return this->getData(ind, a) > this->getData(ind, b);
+			});
+		return indices;
 	}
 
 }

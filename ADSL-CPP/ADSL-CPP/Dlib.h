@@ -4,6 +4,9 @@
 #include "DataFrame.h"
 #include "Ops.h"
 #include "DlibConst.h"
+#include "GSL.h"
+
+#include <random>
 #include <dlib/svm.h>
 
 namespace adsl {
@@ -226,6 +229,9 @@ namespace adsl {
             
             // Perform a grid search to find best parameters for the trainer
             cout << "Search for C and gamma based on test accuracy:" << endl;
+            double bestAccuracy = 0;
+            double bestGamma = 0;
+            double bestC = 0;
             for (double gamma = 0.00001; gamma <= 1; gamma *= 5)
             {
                 for (double C = 1; C < 100000; C *= 5)
@@ -248,15 +254,136 @@ namespace adsl {
                             //pass
                         }
                     }
+                    double accuracy = ((double)correct / (double)samplesTest.size()) * 100.0;
+                    if (accuracy > bestAccuracy) {
+                        bestC = C;
+                        bestGamma = gamma;
+                        bestAccuracy = accuracy;
+                    }
                     cout << "gamma: " << gamma << "    C: " << C;
                     cout << "     test accuracy: "
-                        << ((double)correct / (double)samplesTest.size()) * 100.0 << endl;
+                        << accuracy << endl;
                 }
             }
 
-            // Best results for Datasets/iris.csv from grid search above
-            trainer.set_kernel(kernel_type(1e-05));
-            trainer.set_c(3125);
+            cout << "Best accuracy before optimizing: " << bestAccuracy << " with gamma " << bestGamma << " and C " << bestC << endl;
+
+            // Run optimizer to return the best C and gamma
+
+            // Optimize the binary classifier with a genetic algorithm
+            // Returns a vector {gamma, C}
+            // x0 is the initial point
+            auto optimizer = [&] (vd x0, int popsize) -> vd {
+
+                // fitness function
+                auto fitness = [&] (double gamma, double C) -> double {
+                    trainer.set_kernel(kernel_type(gamma));
+                    trainer.set_c(C);
+                    learned_function.normalizer = normalizer;  // save normalization information
+                    learned_function.function = trainer.train(samplesTrain, labelsTrain);
+
+                    int correct = 0;
+                    for (int i = 0; i < samplesTest.size(); i++) {
+                        if (learned_function(samplesTest[i]) > 0 && labelsTest[i] > 0) {
+                            correct += 1;
+                        }
+                        else if (learned_function(samplesTest[i]) < 0 && labelsTest[i] < 0) {
+                            correct += 1;
+                        }
+                        else {}
+                    }
+                    double accuracy = ((double)correct / (double)samplesTest.size()) * 100.0;
+                    return accuracy;
+                };
+
+                DataFrame pop; // population
+                pop.init(3); // 3 cols
+                pop.setNames({ "gamma", "c", "accuracy" });
+                // make sure the initial guess is part of the initial population
+                pop.addRow({ x0[0], x0[1], bestAccuracy});
+
+                // populate the population with random variations on the initial point
+                double percentage = 7.5;
+                std::random_device seederG;
+                std::mt19937 rngG(seederG());
+                std::uniform_real_distribution<double> disG(-percentage / 100, percentage / 100);
+                std::random_device seederC;
+                std::mt19937 rngC(seederC());
+                std::uniform_real_distribution<double> disC(-percentage / 100, percentage / 100);
+                for (int i = 0; i < popsize-1; i++) {
+                    double tmpGamma = x0[0] * (1.0 + disG(rngG));
+                    double tmpC = x0[1] * (1.0 + disC(rngC));
+                    double tmpAcc = fitness(tmpGamma, tmpC);
+                    pop.addRow({ tmpGamma, tmpC, tmpAcc });
+                }
+
+                for (int generations = 0; generations < 10000; generations++) {
+
+                    // check if the desired threshold accuracy has been reached
+                    for (int rowInd = 0; rowInd < pop.getRows(); rowInd++) {
+                        int colInd = pop.getColIndex("accuracy");
+                        if (pop.getData(colInd, rowInd) > 98.0) {
+                            int gammaInd = pop.getColIndex("gamma");
+                            int cInd = pop.getColIndex("c");
+                            return { pop.getData(gammaInd, rowInd), pop.getData(cInd, rowInd), pop.getData(colInd, rowInd) };
+                        }
+                    }
+
+                    // rank the population by their fitness
+                    std::vector<int> rankedInds = pop.getSortedIndices("accuracy");
+
+                    // mutate the top 49% of the population **slightly**
+                    int halfMarker = (int)(rankedInds.size() / 2);
+                    percentage = 2;
+                    std::uniform_real_distribution<double> disG_1(-percentage / 100, percentage / 100);
+                    std::uniform_real_distribution<double> disC_1(-percentage / 100, percentage / 100);
+                    int gammaInd = pop.getColIndex("gamma");
+                    int cInd = pop.getColIndex("c");
+                    int accInd = pop.getColIndex("accuracy");
+
+                    double avgGammaTopHalf = 0; // keep track of this for later
+                    double avgCTopHalf = 0; // keep track of this for later
+                    for (int i = 1; i < halfMarker; i++) {
+                        avgGammaTopHalf += pop.getData(gammaInd, rankedInds[i]);
+                        avgCTopHalf += pop.getData(cInd, rankedInds[i]);
+                        double tmpGamma = pop.getData(gammaInd, rankedInds[i]) * (1.0 + disG_1(rngG));
+                        double tmpC = pop.getData(cInd, rankedInds[i]) * (1.0 + disC_1(rngC));
+                        double tmpAcc = fitness(tmpGamma, tmpC);
+                        pop.replaceRow(rankedInds[i], { tmpGamma, tmpC, tmpAcc });
+                    }
+
+                    avgGammaTopHalf = avgGammaTopHalf / (double)halfMarker;
+                    avgCTopHalf = avgCTopHalf / (double)halfMarker;
+
+                    // replace the bottom 50% of the population with **large** variations on the average of the top 50%
+                    percentage = 400;
+                    std::uniform_real_distribution<double> disG_2(-percentage / 100, percentage / 100);
+                    std::uniform_real_distribution<double> disC_2(-percentage / 100, percentage / 100);
+
+                    for (int i = halfMarker; i < rankedInds.size(); i++) {
+                        double tmpGamma = avgGammaTopHalf * (1.0 + disG_1(rngG));
+                        double tmpC = avgCTopHalf * (1.0 + disC_1(rngC));
+                        double tmpAcc = fitness(tmpGamma, tmpC);
+                        pop.replaceRow(rankedInds[i], { tmpGamma, tmpC, tmpAcc });
+                    }
+                }
+
+                std::vector<int> rankedInds = pop.getSortedIndices("accuracy");
+                return { pop.getData(0, rankedInds[0]), 
+                    pop.getData(1, rankedInds[0]),
+                    pop.getData(2, rankedInds[0]) };
+            };
+            
+            vd x0 = {bestGamma, bestC};
+            vd best = optimizer(x0, 100);
+            bestGamma = best[0];
+            bestC = best[1];
+            bestAccuracy = best[2];
+            
+            cout << "Best accuracy after optimizing: " << bestAccuracy << " with gamma " << bestGamma << " and C " << bestC << endl;
+
+            trainer.set_kernel(kernel_type(bestGamma));
+            trainer.set_c(bestC);
 
             learned_function.normalizer = normalizer;  // save normalization information
             learned_function.function = trainer.train(samplesTrain, labelsTrain); // perform the actual SVM training and save the results
@@ -267,7 +394,7 @@ namespace adsl {
             // Test the model with validation data
             int correct = 0;
             for (int i = 0; i < samplesVal.size(); i++) {
-                cout << "Observed: " << labelsVal[i] << " Predicted " << learned_function(samplesVal[i]) << endl;
+                //cout << "Observed: " << labelsVal[i] << " Predicted " << learned_function(samplesVal[i]) << endl;
                 if (learned_function(samplesVal[i]) > 0 && labelsVal[i] > 0) {
                     correct += 1;
                 }
@@ -285,4 +412,5 @@ namespace adsl {
         }; 
         return retFunc;
     };
+
 }
