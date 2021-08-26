@@ -232,9 +232,9 @@ namespace adsl {
             double bestAccuracy = 0;
             double bestGamma = 0;
             double bestC = 0;
-            for (double gamma = 0.00001; gamma <= 1; gamma *= 5)
+            for (double gamma = GRID_GAMMA_MIN; gamma <= GRID_GAMMA_MAX; gamma *= 5)
             {
-                for (double C = 1; C < 100000; C *= 5)
+                for (double C = GRID_C_MIN; C < GRID_C_MAX; C *= 5)
                 {
                     trainer.set_kernel(kernel_type(gamma));
                     trainer.set_c(C);
@@ -303,7 +303,7 @@ namespace adsl {
                 pop.addRow({ x0[0], x0[1], bestAccuracy});
 
                 // populate the population with random variations on the initial point
-                double percentage = 7.5;
+                double percentage = PERC_START;
                 std::random_device seederG;
                 std::mt19937 rngG(seederG());
                 std::uniform_real_distribution<double> disG(-percentage / 100, percentage / 100);
@@ -317,12 +317,12 @@ namespace adsl {
                     pop.addRow({ tmpGamma, tmpC, tmpAcc });
                 }
 
-                for (int generations = 0; generations < 10000; generations++) {
+                for (int generations = 0; generations < MAX_GENS; generations++) {
 
                     // check if the desired threshold accuracy has been reached
                     for (int rowInd = 0; rowInd < pop.getRows(); rowInd++) {
                         int colInd = pop.getColIndex("accuracy");
-                        if (pop.getData(colInd, rowInd) > 98.0) {
+                        if (pop.getData(colInd, rowInd) >= THRESH_ACC) {
                             int gammaInd = pop.getColIndex("gamma");
                             int cInd = pop.getColIndex("c");
                             return { pop.getData(gammaInd, rowInd), pop.getData(cInd, rowInd), pop.getData(colInd, rowInd) };
@@ -335,7 +335,7 @@ namespace adsl {
                     // mutate the top 49.999...% of the population **slightly**
                     int halfMarker = (int)(rankedInds.size() / 2);
                     int threeFourthsMarker = (int)((double)rankedInds.size() * 0.75);
-                    percentage = 2;
+                    percentage = PERC_TOP;
                     std::uniform_real_distribution<double> disG_1(-percentage / 100, percentage / 100);
                     std::uniform_real_distribution<double> disC_1(-percentage / 100, percentage / 100);
                     int gammaInd = pop.getColIndex("gamma");
@@ -357,7 +357,7 @@ namespace adsl {
                     avgCTopHalf = avgCTopHalf / (double)halfMarker;
 
                     // replace the next-to-the-bottom 25% of the population with **large** variations on the average of the top 50%
-                    percentage = 400;
+                    percentage = PERC_MIDDLE;
                     std::uniform_real_distribution<double> disG_2(-percentage / 100, percentage / 100);
                     std::uniform_real_distribution<double> disC_2(-percentage / 100, percentage / 100);
 
@@ -369,8 +369,8 @@ namespace adsl {
                     }
 
                     // replace the bottom 25% of the population with purely random solutions
-                    std::uniform_real_distribution<double> disG_3(0.00001, 1);
-                    std::uniform_real_distribution<double> disC_3(1, 100000);
+                    std::uniform_real_distribution<double> disG_3(GA_GAMMA_MIN, GA_GAMMA_MAX);
+                    std::uniform_real_distribution<double> disC_3(GA_C_MIN, GA_C_MAX);
 
                     for (int i = threeFourthsMarker; i < rankedInds.size(); i++) {
                         double tmpGamma = disG_3(rngG);
@@ -388,7 +388,7 @@ namespace adsl {
             };
             
             vd x0 = {bestGamma, bestC};
-            vd best = optimizer(x0, 100);
+            vd best = optimizer(x0, POP_SIZE);
             bestGamma = best[0];
             bestC = best[1];
             bestAccuracy = best[2];

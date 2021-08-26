@@ -92,7 +92,7 @@ int main() {
 
     // Test Dlib
     //cout << "Testing Dlib" << endl;
-    adsl::dlib_run_svm_c_trainer();
+    //adsl::dlib_run_svm_c_trainer();
 
     // Test Dlib classifier
     DataFrame irisData = adsl::loadFromCSV("Datasets/iris.csv", ",", true);
