@@ -10,6 +10,7 @@
 #include <sstream>
 #include <algorithm>
 #include <execution>
+#include <iomanip>
 
 namespace adsl {
 
@@ -132,7 +133,7 @@ namespace adsl {
 	std::string DataFrame::str() {
 		using namespace std;
 		stringstream os;
-		os << "[[BEGIN DataFrame]]" << "\n" << "Description: " << m_description << endl;
+		os << std::setprecision(5) << "[[BEGIN DataFrame]]" << "\n" << "Description: " << m_description << endl;
 		os << "Data:" << endl;
 		for (auto list : m_data) {
 			os << list.str();

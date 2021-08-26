@@ -5,7 +5,6 @@
 #include "Ops.h"
 #include "DlibConst.h"
 #include "GSL.h"
-
 #include <random>
 #include <dlib/svm.h>
 
@@ -312,21 +311,14 @@ namespace adsl {
                 std::mt19937 rngC(seederC());
                 std::uniform_real_distribution<double> disC(-percentage / 100, percentage / 100);
                 std::vector<int> dummyVec(popsize);
-                std::for_each(dummyVec.begin(), dummyVec.end() - 1, [&](auto dummyI) {
+                std::for_each(LOOP_POL, dummyVec.begin(), dummyVec.end() - 1, [&](auto& dummyI) {
                     double tmpGamma = x0[0] * (1.0 + disG(rngG));
                     double tmpC = x0[1] * (1.0 + disC(rngC));
                     double tmpAcc = fitness(tmpGamma, tmpC);
                     pop.addRow({ tmpGamma, tmpC, tmpAcc });
                 });
-                /*
-                for (int i = 0; i < popsize-1; i++) {
-                    double tmpGamma = x0[0] * (1.0 + disG(rngG));
-                    double tmpC = x0[1] * (1.0 + disC(rngC));
-                    double tmpAcc = fitness(tmpGamma, tmpC);
-                    pop.addRow({ tmpGamma, tmpC, tmpAcc });
-                }
-                */
                 cout << "Done initializing population." << endl;
+                cout << pop.str();
 
                 for (int generations = 0; generations < MAX_GENS; generations++) {
 
@@ -359,7 +351,7 @@ namespace adsl {
                     double avgGammaTopHalf = 0; // keep track of this for later
                     double avgCTopHalf = 0; // keep track of this for later
                     
-                    std::for_each(rankedInds.begin() + 1, rankedInds.begin() + halfMarker - 1, [&](auto& rInd) {
+                    std::for_each(LOOP_POL, rankedInds.begin() + 1, rankedInds.begin() + halfMarker - 1, [&](auto& rInd) {
                         avgGammaTopHalf += pop.getData(gammaInd, rInd);
                         avgCTopHalf += pop.getData(cInd, rInd);
                         double tmpGamma = pop.getData(gammaInd, rInd) * (1.0 + disG_1(rngG));
@@ -367,16 +359,6 @@ namespace adsl {
                         double tmpAcc = fitness(tmpGamma, tmpC);
                         pop.replaceRow(rInd, { tmpGamma, tmpC, tmpAcc });
                      });
-                    /*
-                    for (int i = 1; i < halfMarker; i++) {
-                        avgGammaTopHalf += pop.getData(gammaInd, rankedInds[i]);
-                        avgCTopHalf += pop.getData(cInd, rankedInds[i]);
-                        double tmpGamma = pop.getData(gammaInd, rankedInds[i]) * (1.0 + disG_1(rngG));
-                        double tmpC = pop.getData(cInd, rankedInds[i]) * (1.0 + disC_1(rngC));
-                        double tmpAcc = fitness(tmpGamma, tmpC);
-                        pop.replaceRow(rankedInds[i], { tmpGamma, tmpC, tmpAcc });
-                    }
-                    */
 
                     avgGammaTopHalf = avgGammaTopHalf / (double)halfMarker;
                     avgCTopHalf = avgCTopHalf / (double)halfMarker;
@@ -386,41 +368,23 @@ namespace adsl {
                     std::uniform_real_distribution<double> disG_2(-percentage / 100, percentage / 100);
                     std::uniform_real_distribution<double> disC_2(-percentage / 100, percentage / 100);
 
-                    std::for_each(rankedInds.begin() + halfMarker, rankedInds.begin() + threeFourthsMarker - 1, [&](auto& rInd) {
+                    std::for_each(LOOP_POL, rankedInds.begin() + halfMarker, rankedInds.begin() + threeFourthsMarker - 1, [&](auto& rInd) {
                         double tmpGamma = avgGammaTopHalf * (1.0 + disG_2(rngG));
                         double tmpC = avgCTopHalf * (1.0 + disC_2(rngC));
                         double tmpAcc = fitness(tmpGamma, tmpC);
                         pop.replaceRow(rInd, { tmpGamma, tmpC, tmpAcc });
                     });
 
-                    /*
-                    for (int i = halfMarker; i < threeFourthsMarker; i++) {
-                        double tmpGamma = avgGammaTopHalf * (1.0 + disG_2(rngG));
-                        double tmpC = avgCTopHalf * (1.0 + disC_2(rngC));
-                        double tmpAcc = fitness(tmpGamma, tmpC);
-                        pop.replaceRow(rankedInds[i], { tmpGamma, tmpC, tmpAcc });
-                    }
-                    */
-
                     // replace the bottom 25% of the population with purely random solutions
                     std::uniform_real_distribution<double> disG_3(GA_GAMMA_MIN, GA_GAMMA_MAX);
                     std::uniform_real_distribution<double> disC_3(GA_C_MIN, GA_C_MAX);
 
-                    std::for_each(rankedInds.begin() + threeFourthsMarker, rankedInds.end(), [&](auto rInd) {
+                    std::for_each(LOOP_POL, rankedInds.begin() + threeFourthsMarker, rankedInds.end(), [&](auto rInd) {
                         double tmpGamma = disG_3(rngG);
                         double tmpC = disC_3(rngC);
                         double tmpAcc = fitness(tmpGamma, tmpC);
                         pop.replaceRow(rInd, { tmpGamma, tmpC, tmpAcc });
                      });
-
-                    /*
-                    for (int i = threeFourthsMarker; i < rankedInds.size(); i++) {
-                        double tmpGamma = disG_3(rngG);
-                        double tmpC = disC_3(rngC);
-                        double tmpAcc = fitness(tmpGamma, tmpC);
-                        pop.replaceRow(rankedInds[i], { tmpGamma, tmpC, tmpAcc });
-                    }
-                    */
 
                 } // end generations loop
 
