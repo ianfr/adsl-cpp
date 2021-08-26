@@ -361,8 +361,8 @@ namespace adsl {
                     std::uniform_real_distribution<double> disC_2(-percentage / 100, percentage / 100);
 
                     for (int i = halfMarker; i < rankedInds.size(); i++) {
-                        double tmpGamma = avgGammaTopHalf * (1.0 + disG_1(rngG));
-                        double tmpC = avgCTopHalf * (1.0 + disC_1(rngC));
+                        double tmpGamma = avgGammaTopHalf * (1.0 + disG_2(rngG));
+                        double tmpC = avgCTopHalf * (1.0 + disC_2(rngC));
                         double tmpAcc = fitness(tmpGamma, tmpC);
                         pop.replaceRow(rankedInds[i], { tmpGamma, tmpC, tmpAcc });
                     }
