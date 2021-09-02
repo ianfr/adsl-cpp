@@ -311,14 +311,14 @@ namespace adsl {
                 std::mt19937 rngC(seederC());
                 std::uniform_real_distribution<double> disC(-percentage / 100, percentage / 100);
                 std::vector<int> dummyVec(popsize);
-                std::for_each(LOOP_POL, dummyVec.begin(), dummyVec.end() - 1, [&](auto& dummyI) {
+                std::for_each(dummyVec.begin(), dummyVec.end() - 1, [&](auto& dummyI) {
                     double tmpGamma = x0[0] * (1.0 + disG(rngG));
                     double tmpC = x0[1] * (1.0 + disC(rngC));
                     double tmpAcc = fitness(tmpGamma, tmpC);
                     pop.addRow({ tmpGamma, tmpC, tmpAcc });
                 });
                 cout << "Done initializing population." << endl;
-                cout << pop.str();
+                //cout << pop.str();
 
                 for (int generations = 0; generations < MAX_GENS; generations++) {
 
