@@ -16,8 +16,6 @@ Please note that ADSL is for datasets of floating-point values. When ML is added
 
 Also, **this library is in an early stage of development.**
 
-**ADSL IS IN THE PROCESS OF BEING MOVED TO LINUX/UBUNTU/WSL**
-
 ## Files
 * ADSL.h - includes everything else
 * DataFrame.h - class definitions for `DataFrame` and `DataList`
@@ -107,14 +105,13 @@ In your extensions, the outer lambda can take in any number of arguments - just 
 
 ## Installation
 
-~~Right now development is happening in Visual Studio 16 2019. The library _is_ header-only, so it should compile with any modern C++ compiler on Windows, MacOS, Linux, or UNIX.~~
-Development is in the process of being moved to Ubuntu on WSL.
+Development and testing is happening in Ubuntu 20.04 using the Windows Subsystem for Linux and `g++` version 9.
 
-To get started with ADSL, download the repo and stick it inside of your project. Then add `#include "adsl-cpp/ADSL-CPP/ADSL-CPP/ADSL.h"`to your code and install the dependencies below:
+To get started with ADSL, download the repo and stick it inside of your project. Then add `#include "adsl-cpp/Includes/ADSL.h"`to your code and install the dependencies below:
 
 The following dependencies are required to be installed (I used the awesome [vcpkg](https://vcpkg.io/en/getting-started.html) package manager, and assume that the vcpkg repo is located in `$HOME/DEV/`):
-* The GNU Scientific Library (GSL): ~~`.\vcpkg install gsl gsl:x64-windows`~~ `./vcpkg install gsl`. [GSL](https://www.gnu.org/software/gsl/#subjects) is a C library with a large collection of numerical routines for everything from least-squares to simulated annealing.
-* Dlib: ~~`.\vcpkg install dlib dlib:x64-windows`~~`./vcpkg install dlib`. [Dlib](http://dlib.net/ml.html) is a C++ library containing various numerical routines including many for ML.
+* The GNU Scientific Library (GSL): `./vcpkg install gsl`. [GSL](https://www.gnu.org/software/gsl/#subjects) is a C library with a large collection of numerical routines for everything from least-squares to simulated annealing.
+* Dlib: `./vcpkg install dlib`. [Dlib](http://dlib.net/ml.html) is a C++ library containing various numerical routines including many for ML.
 * Boost (interprocess): `./vcpkg install boost-interprocess`. Boost's interprocess library provides functionality for sending data between different processes.
 
 
@@ -122,9 +119,9 @@ The following dependencies are required to be installed manually:
 * Gnuplot with `sudo apt install gnuplot`
 * Gfortran with `sudo apt install gfortran`
 * Intel TBB with `sudo apt install libtbb-dev`
-* ~~[Gnuplot (mingw version)](https://sourceforge.net/projects/gnuplot/files/gnuplot/5.4.2/). NOTE: make sure to check the box to add gnuplot to the PATH during installation.~~
 
 ## Work in Progress:
+* An in-memory database like what R has
 * Adding basic plotting capability built around Gnuplot
 * Provide chainable wrappers around STL functions like accumulate, sort, etc
 * Porting statistical functions from GSL
