@@ -107,18 +107,24 @@ In your extensions, the outer lambda can take in any number of arguments - just 
 
 Development and testing is happening in Ubuntu 20.04 using the Windows Subsystem for Linux and `g++` version 9.
 
-To get started with ADSL, download the repo and stick it inside of your project. Then add `#include "adsl-cpp/Includes/ADSL.h"`to your code and install the dependencies below:
-
 The following dependencies are required to be installed (I used the awesome [vcpkg](https://vcpkg.io/en/getting-started.html) package manager, and assume that the vcpkg repo is located in `$HOME/DEV/`):
 * The GNU Scientific Library (GSL): `./vcpkg install gsl`. [GSL](https://www.gnu.org/software/gsl/#subjects) is a C library with a large collection of numerical routines for everything from least-squares to simulated annealing.
 * Dlib: `./vcpkg install dlib`. [Dlib](http://dlib.net/ml.html) is a C++ library containing various numerical routines including many for ML.
 * Boost (interprocess): `./vcpkg install boost-interprocess`. Boost's interprocess library provides functionality for sending data between different processes.
 
-
 The following dependencies are required to be installed manually:
 * Gnuplot with `sudo apt install gnuplot`
 * Gfortran with `sudo apt install gfortran`
 * Intel TBB with `sudo apt install libtbb-dev`
+
+## Usage
+
+To get started with ADSL, download the repo and stick it inside of your project. Then add `#include "adsl-cpp/Includes/ADSL.h"`to your code and install the dependencies as described above.
+
+The example program *ADSL-CPP.cpp* can be compiled with the _compile_ Bash script. Any program you write can also be compiled by setting the appropriate environment variable in the *compile* script.
+
+Since data is loaded from disk every time you compile your code, for larger data sets it is  reccomended that you take advantage of the *ramdisk* Bash script, which essentially creates a folder in RAM that you should move your dataset(s) to with `cp FILE_NAME /mnt/adsl_ramdisk/FILE_NAME`. This option only makes sense if you have a large amount of RAM, however, because the dataset is still copied by ADSL into a DataFrame object.
+
 
 ## Work in Progress:
 * An in-memory database like what R has
