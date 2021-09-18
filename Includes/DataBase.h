@@ -12,6 +12,7 @@ using namespace boost::interprocess;
 namespace adsl {
 
     // utility function to *compile* (not run) the data loading code
+    /*
     void compileLoadDataCpp(std::string vcpkgParentFolder) {
         std::cout << "Compiling LoadData.cpp..." << std::endl;
         std::stringstream cmdStream;
@@ -22,6 +23,7 @@ namespace adsl {
         cmdStream << "cl /EHsc /std:c++17 /I %INC_VCPKG% MemDB\\LoadData.cpp /link /LIBPATH:%LIB_VCPKG%";
         std::system(cmdStream.str().c_str());
     }
+    */
 
 	void createShared() {
         //Remove shared memory on construction and destruction

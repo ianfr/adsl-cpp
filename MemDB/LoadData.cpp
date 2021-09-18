@@ -3,11 +3,13 @@
 
 #include <sstream>
 #include <cstdlib>
-#include "../Includes/DataBase.h"
+#include "../Includes/ADSL.h"
 
 int main() {
 	std::cout << "Loading data..." << std::endl;
+	adsl::createShared();
 
-
+	// loop infinitely
+	while (true) {}
 
 }

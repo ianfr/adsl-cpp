@@ -98,7 +98,10 @@ int main() {
     DataFrame irisData = adsl::loadFromCSV("Datasets/iris.csv", ",", true);
     vector<double> labels = irisData + adsl::select({ "class" }) + adsl::getFirst + adsl::toVec;
     DataFrame feats = irisData + adsl::deselect({ "class" });
-    DataFrame classResult = feats + adsl::binaryClassifier( labels );
+    //DataFrame classResult = feats + adsl::binaryClassifier( labels );
+
+    // Test inter-process communication
+    adsl::loadShared();
 
     cout << "Press Enter to exit... ";
     cin.get();

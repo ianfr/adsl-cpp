@@ -12,4 +12,4 @@ g++ -std=c++17 \
   $ADSL_MAIN_SRC.cpp \
   -L$HOME/DEV/vcpkg/installed/x64-linux/lib -llapack -lopenblas -lgsl -ldlib -pthread -ltbb \
   -o $ADSL_MAIN_EX \
-  -lgfortran
+  -lgfortran -lrt
