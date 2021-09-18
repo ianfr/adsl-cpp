@@ -16,6 +16,8 @@ Please note that ADSL is for datasets of floating-point values. When ML is added
 
 Also, **this library is in an early stage of development.**
 
+**ADSL IS IN THE PROCESS OF BEING MOVED TO LINUX/UBUNTU/WSL**
+
 ## Files
 * ADSL.h - includes everything else
 * DataFrame.h - class definitions for `DataFrame` and `DataList`
