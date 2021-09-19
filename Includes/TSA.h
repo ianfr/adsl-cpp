@@ -128,32 +128,12 @@ namespace adsl {
             xpred = (double*)malloc(sizeof(double)* L);
             amse = (double*)malloc(sizeof(double)* L);
 
-            /*
-            FILE *ifp;
-            double temp[1200];
-            double temp1[1200];
-            double temp2[1200];
-            
-            ifp = fopen("ctsa-master/data/seriesA.txt", "r");
-            i = 0;
-            if (!ifp) {
-                printf("Cannot Open File");
-                exit(100);
-            }
-            while (!feof(ifp)) {
-                fscanf(ifp, "%lf\n", &temp[i]);
-                i++;
-            }
-            N = i;
-            */
-
-           // Convert to C-style array
+            // Convert input to C-style array
             N = dl.vals.size();
             inp = (double*)malloc(sizeof(double)* N);
             for (i = 0; i < N; ++i) {
                 inp[i] = dl.vals[i];
             }
-
         
             obj = auto_arima_init(order,seasonal,s,r,N);
 
@@ -191,7 +171,6 @@ namespace adsl {
             free(inp);
             free(xpred);
             free(amse);
-            //fclose(ifp);
 
             return ret;
         };
