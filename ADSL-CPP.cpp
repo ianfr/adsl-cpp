@@ -98,7 +98,16 @@ int main() {
     DataFrame irisData = adsl::loadFromCSV("Datasets/iris.csv", ",", true);
     vector<double> labels = irisData + adsl::select({ "class" }) + adsl::getFirst + adsl::toVec;
     DataFrame feats = irisData + adsl::deselect({ "class" });
-    DataFrame classResult = feats + adsl::binaryClassifier( labels );
+    //DataFrame classResult = feats + adsl::binaryClassifier( labels );
+
+    // Test ARIMA
+    adsl::mimicAutoArimaTest1(); // slightly modified version of the autoarimatest1 from ctsa
+    std::vector<double> arimaTestVec = {16.9969,16.5969,16.802,17.1,17.3995,17.3995,17.5008,17.3998,17.6,17.4,17.3,17,17.8};
+    DataList arimaDL = DataList(arimaTestVec, "Test Input");
+    DataFrame arimaDF;
+    arimaDF.addCol(arimaDL);
+    DataFrame arimaResults = arimaDF + adsl::autoARIMA(5);
+    cout << "ARIMA results:\n" << arimaResults.str();
 
     cout << "Press Enter to exit... ";
     cin.get();
