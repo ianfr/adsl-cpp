@@ -4,9 +4,10 @@
 The ADSL C++ project is a library for performant and straightforward data science. ADSL includes:
 
 * A library for manipulating data
-* Scatterplots and other data visualizations _(via Gnuplot)_
-* Statistical routines _(via GSL)_
 * Machine learning routines _(via Dlib)_
+* Time-series forecasting _(via ctsa)_
+* Statistical routines _(via GSL)_
+* Scatterplots and other data visualizations _(via Gnuplot)_
 
 At ADSL's core is the `DataFrame` class to work with data sets. `DataFrame` is inspired by R's & Pandas' dataframes and can import data from a CSV file.
 
@@ -116,6 +117,8 @@ The following dependencies are required to be installed manually:
 * Gnuplot with `sudo apt install gnuplot`
 * Gfortran with `sudo apt install gfortran`
 * Intel TBB with `sudo apt install libtbb-dev`
+
+Note that a copy of the ctsa repo is included within ADSL and has to be built so that the *compile* Bash script can link against ctsa. To do this, `cd` into ctsa-master and do `cmake .` followed by running `make`.
 
 ## Usage
 
