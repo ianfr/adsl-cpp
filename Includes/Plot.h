@@ -22,7 +22,8 @@ namespace adsl {
 
 		// plot from csv file
 		std::stringstream cmdStream;
-		cmdStream << "START /B gnuplot -e " << "\"" << "plot 'scatter2D.dat' using 1:2; pause -1" << "\"";
+		cmdStream << "gnuplot -e " << "\"" << "set terminal png size 400,300; set output 'xyz.png'; " << "plot 'scatter2D.dat' using 1:2" << "\"";
+
 		std::system(cmdStream.str().c_str());
 
 		// temporary fix; void wasn't working for some reason
