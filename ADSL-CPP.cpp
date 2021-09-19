@@ -67,7 +67,7 @@ int main() {
     df2.addCol(lst0);
     df2.addCol(lst1);
     df2.setDesc("testing plotting 2d");
-    df2 + adsl::scatter2D;
+    df2 + adsl::scatter2D({"testPlot.png", "800,600"});
 
     // Select specific columns
     auto df3 = df2 + adsl::select({ "DL 1" });
