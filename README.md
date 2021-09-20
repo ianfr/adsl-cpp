@@ -137,5 +137,4 @@ Since data is loaded from disk every time you compile your code, for larger data
 * Incorporate Machine Learning with Dlib
 
 ## Future Work:
-* Add ARIMA forecasting (probably by calling R)
 * `DataFrameList` class for working with lists of DataFrames?
