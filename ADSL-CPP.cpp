@@ -113,6 +113,7 @@ int main() {
     DataFrame timeSeries = adsl::loadFromCSV_wDate("Datasets/finMini.csv", ",", true, 0);
     cout << "Time series results:\n" << timeSeries.str();
     timeSeries + adsl::select({"date", "val1"}) + adsl::scatter2D({"testFin.png", "800,600"});
+    adsl::writeToCSV(timeSeries, "TimeSeriesOut.csv");
 
     cout << "Press Enter to exit... ";
     cin.get();
