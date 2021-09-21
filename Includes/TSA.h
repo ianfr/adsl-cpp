@@ -2,7 +2,7 @@
 
 #include "DataFrame.h"
 #include "Ops.h"
-#include "../ctsa-master/header/ctsa.h"
+#include "../ctsa/header/ctsa.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -42,7 +42,7 @@ namespace adsl {
         double temp1[1200];
         double temp2[1200];
 
-        ifp = fopen("ctsa-master/data/seriesA.txt", "r");
+        ifp = fopen("ctsa/data/seriesA.txt", "r");
         i = 0;
         if (!ifp) {
             printf("Cannot Open File");

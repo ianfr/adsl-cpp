@@ -111,14 +111,14 @@ Development and testing is happening in Ubuntu 20.04 using the Windows Subsystem
 The following dependencies are required to be installed (I used the awesome [vcpkg](https://vcpkg.io/en/getting-started.html) package manager, and assume that the vcpkg repo is located in `$HOME/DEV/`):
 * The GNU Scientific Library (GSL): `./vcpkg install gsl`. [GSL](https://www.gnu.org/software/gsl/#subjects) is a C library with a large collection of numerical routines for everything from least-squares to simulated annealing.
 * Dlib: `./vcpkg install dlib`. [Dlib](http://dlib.net/ml.html) is a C++ library containing various numerical routines including many for ML.
-* Boost (interprocess): `./vcpkg install boost-interprocess`. Boost's interprocess library provides functionality for sending data between different processes.
+* Boost (date-time): `./vcpkg install boost-date-time`. Boost's Date & Time library provides functionality for working with dates, times, and strings.
 
 The following dependencies are required to be installed manually:
 * Gnuplot with `sudo apt install gnuplot`
 * Gfortran with `sudo apt install gfortran`
 * Intel TBB with `sudo apt install libtbb-dev`
 
-Note that a copy of the ctsa repo is included within ADSL and has to be built so that the *compile* Bash script can link against ctsa. To do this, `cd` into ctsa-master and do `cmake .` followed by running `make`.
+Note that a compressed copy of the ctsa repo is included within ADSL and has to be uncompressed, placed in a folder called *ctsa*, and then built so that the *compile* Bash script can link against ctsa. To build ctsa, `cd` into *ctsa* and do `cmake .` followed by running `make`.
 
 ## Usage
 

@@ -13,7 +13,7 @@ g++ -std=c++2a \
   -I$HOME/DEV/vcpkg/installed/x64-linux/include \
   $ADSL_MAIN_SRC.cpp \
   -L$HOME/DEV/vcpkg/installed/x64-linux/lib -llapack -lopenblas -lgsl -ldlib -pthread -ltbb \
-  -L./ctsa-master/Bin -lctsalib \
+  -L./ctsa/Bin -lctsalib \
   -o $ADSL_MAIN_EX \
   -lgfortran
 

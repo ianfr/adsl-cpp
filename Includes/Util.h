@@ -3,6 +3,9 @@
 #include "DataFrame.h"
 #include <sstream>
 #include <fstream>
+#include <boost/date_time/gregorian/gregorian.hpp>
+
+using namespace boost::gregorian;
 
 namespace adsl {
 
@@ -17,6 +20,64 @@ namespace adsl {
 		std::string s;
 		while (std::getline(ss, s, *delim)) {
 			out.push_back(s);
+		}
+	}
+
+	// Loads a DataFrame from a CSV file with a SINGLE time-series column
+	// TODO: Fix breaking on processing empty lines
+	// TODO: Read in a description after a # symbol
+	// Adapted from https://stackoverflow.com/questions/19936483/c-reading-csv-file
+	DataFrame loadFromCSV_wDate(std::string filename, std::string delim, bool header, int dateColInd) {
+		std::ifstream ifs;
+		ifs.open(filename, std::ifstream::in);
+
+		DataFrame df;
+
+		bool gotNumCols = false;
+		int numCols = 0;
+		std::string line;
+		int lineCounter = 0;
+		while (std::getline(ifs, line)) {
+			std::vector<std::string> lineVec;
+			tokenize(line, delim.c_str(), lineVec);
+
+			// Get the number of columns and initialize
+			if (!gotNumCols) {
+				numCols = lineVec.size();
+				gotNumCols = true;
+				for (int i = 0; i < numCols; i++) {
+					vd tmpvd;
+					DataList tmpDL(tmpvd, "");
+					df.addCol(tmpDL);
+				}
+			}
+
+			if (header && lineCounter == 0) {
+				for (int i = 0; i < numCols; i++) {
+					df.changeColName(i, lineVec[i]);
+				}
+			}
+			else {
+				for (int i = 0; i < numCols; i++) {
+					if (i == dateColInd) {
+						date boostDate = from_uk_string(lineVec[i]);
+						df.appendToCol(i, (double) boostDate.day_number());
+					}
+					else { 
+						df.appendToCol(i, std::stod(lineVec[i]));
+					}
+				}
+			}
+
+			lineCounter += 1;
+		}
+		if (df.verifyDims()) {
+			return df;
+		}
+		else {
+			std::cout << "[loadFromCSV] <<ERROR>> DataFrame has mismatched dimensions." << std::endl;
+			DataFrame empty_df;
+			return empty_df;
 		}
 	}
 
