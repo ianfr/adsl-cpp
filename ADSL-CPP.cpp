@@ -1,6 +1,7 @@
 // STL includes
 #include "Includes/ADSL.h"
 #include <gsl/gsl_sf_bessel.h>
+#include <gsl/gsl_math.h>
 #include <numeric>
 
 using namespace std;
@@ -119,15 +120,18 @@ int main() {
 
     // test the KRLS regression on fitting a function f(x,y)
     // create the data
+    // auto fTest = [](double x1, double x2) {
+    //     return gsl_sf_bessel_J0(x1) * gsl_sf_bessel_J1(x2);
+    // };
     auto fTest = [](double x1, double x2) {
-        return gsl_sf_bessel_J0(x1) * gsl_sf_bessel_J1(x2);
+        return gsl_hypot(x1, x2);
     };
-    int numPts = 30;
+    int numPts = 100;
     std::vector<double> x1Vec(numPts);
     std::vector<double> x2Vec(numPts);
     std::vector<double> yVec(numPts);
-    std::iota(x1Vec.begin(), x1Vec.end(), 0);
-    std::iota(x2Vec.begin(), x2Vec.end(), 0);
+    std::iota(x1Vec.begin(), x1Vec.end(), 1);
+    std::iota(x2Vec.begin(), x2Vec.end(), 1);
     for (int i=0; i < x1Vec.size(); i++) {
         yVec[i] = fTest(x1Vec[i], x2Vec[i]);
     }
@@ -142,8 +146,7 @@ int main() {
     cout << testKrls.str() << endl;
 
     adsl::vd krlsLabels = testKrls + adsl::select({"f(x1,x2)"}) + adsl::getFirst + adsl::toVec;
-    DataFrame krlsFeats = testKrls + adsl::deselect({"f(x1,x2)"});
-    krlsFeats + adsl::krlsReg(krlsLabels);
+    testKrls + adsl::deselect({"f(x1,x2)"}) + adsl::krlsReg(krlsLabels);
 
     cout << "Press Enter to exit... ";
     cin.get();

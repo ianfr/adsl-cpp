@@ -435,6 +435,7 @@ namespace adsl {
 
 
     // Perform a Kernel Recursive Least Squares regression given:
+        // NO ZERO VALUES IN THE LABELS
     // A features DataFrame is passed in w/ +
     // The argument is a vector of labels
     // adapted from http://dlib.net/krls_ex.cpp.html
@@ -444,19 +445,11 @@ namespace adsl {
             using namespace std;
             using namespace dlib;
 
+            // typedefs
             typedef matrix<double,MAX_KRLS_F,1> sample_type;
             typedef radial_basis_kernel<sample_type> kernel_type;
 
-            // Here we declare an instance of the krls object.  The first argument to the constructor
-            // is the kernel we wish to use.  The second is a parameter that determines the numerical 
-            // accuracy with which the object will perform part of the regression algorithm.  Generally
-            // smaller values give better results but cause the algorithm to run slower.  You just have
-            // to play with it to decide what balance of speed and accuracy is right for your problem.
-            // Here we have set it to 0.001.
-            //krls<kernel_type> krlsObj(kernel_type(0.1), 0.001);
-
-            krls<kernel_type> krlsObj(kernel_type(KRLS_PARAM), KRLS_EPSILON);
-
+            // convert the features from DataFrame to vector<sample_type> and randomize
             assert(features.getCols() <= MAX_BIN_F);
             std::vector<sample_type> samples;
             for (int rowI = 0; rowI < features.getRows(); rowI++) {
@@ -466,19 +459,72 @@ namespace adsl {
                 }
                 samples.push_back(samp);
             }
+            randomize_samples(samples, labels);
 
-            for(int i = 0; i < samples.size(); i++) {
-                krlsObj.train(samples[i], labels[i]);
+            // Split randomized data into training, testing, and validation
+            // 50-25-25
+            int cutoff0 = (int)(samples.size() * 0.5);
+            int cutoff1 = (int)(samples.size() * 0.75);
+            std::vector<sample_type> samplesTrain, samplesTest, samplesVal;
+            std::vector<double> labelsTrain, labelsTest, labelsVal;
+            for (int i = 0; i < samples.size(); i++) {
+                if (i < cutoff0) {
+                    samplesTrain.push_back(samples[i]);
+                    labelsTrain.push_back(labels[i]);
+                }
+                else if (i < cutoff1) {
+                    samplesTest.push_back(samples[i]);
+                    labelsTest.push_back(labels[i]);
+                }
+                else {
+                    samplesVal.push_back(samples[i]);
+                    labelsVal.push_back(labels[i]);
+                }
             }
 
-            sample_type testSamp;
+            // perform a grid search for the KRLS parameter
+            double bestParam = 0;
+            double bestErr = 1e200; 
+            for (double param = KRLS_PARAM_MIN; param <= KRLS_PARAM_MAX; param *= 2 ) {
+                // create the KRLS object
+                krls<kernel_type> krlsObj(kernel_type(param), KRLS_EPSILON);
 
-            testSamp = {20,20};
-            cout << "KRLS: " << krlsObj(testSamp) << endl;
-            testSamp = {21,21};
-            cout << "KRLS: " << krlsObj(testSamp) << endl;
-            testSamp = {22,22};
-            cout << "KRLS: " << krlsObj(testSamp) << endl;
+                // train the KRLS model on the training set
+                for(int i = 0; i < samplesTrain.size(); i++) {
+                    krlsObj.train(samplesTrain[i], labelsTrain[i]);
+                }
+
+                // find the MPE using the testing set
+                double err = 0;
+                for (int i=0; i < samplesTest.size(); i++) {
+                    err += abs( (krlsObj(samplesTest[i]) - labelsTest[i]) / labelsTest[i] );
+                }
+                err /= (double) samplesTest.size();
+                err *= 100;
+
+                cout << "Testing error: " << err << " with param " << param << endl;
+
+                if (err < bestErr) {
+                    bestParam = param;
+                    bestErr = err;
+                }
+            }
+
+            // train the final KRLS model on the training set
+            krls<kernel_type> krlsObj(kernel_type(bestParam), KRLS_EPSILON);
+            for(int i = 0; i < samplesTrain.size(); i++) {
+                krlsObj.train(samplesTrain[i], labelsTrain[i]);
+            }
+
+            // find the final error on the validation set
+            double err = 0;
+            for (int i=0; i < samplesVal.size(); i++) {
+                err += abs( (krlsObj(samplesVal[i]) - labelsVal[i]) / labelsVal[i] );
+            }
+            err /= (double) samplesVal.size();
+            err *= 100;
+
+            cout << "KRLS mean \% accuracy for validation set: " << 100 - err << " with param " << bestParam << endl;
             
 
             DataFrame ret;

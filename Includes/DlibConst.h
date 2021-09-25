@@ -24,7 +24,8 @@ constexpr auto LOOP_POL = std::execution::seq; // 'par' for parallel loops, 'seq
 
 /* KRLS Regression */
 constexpr int MAX_KRLS_F = 2;
-constexpr double KRLS_PARAM = 0.1;
+constexpr double KRLS_PARAM_MIN = 1e-8;
+constexpr double KRLS_PARAM_MAX = 1000;
 constexpr double KRLS_EPSILON = 1e-7;
 
 
