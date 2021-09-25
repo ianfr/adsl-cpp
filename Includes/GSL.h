@@ -11,6 +11,7 @@ namespace adsl {
 
 	// Evaluate the result of a fit at a given point based on the DataFrame description
 	// double <- DataFrame
+	/*
 	auto evalFit = [](double t) {
 		auto retFunc = [t](DataFrame& df) {
 			if (df.getDesc() == "gsl_fit_linear") {
@@ -24,6 +25,7 @@ namespace adsl {
 		};
 		return retFunc;
 	};
+	*/
 
 	// Perform a linear fit using gsl_fit_linear
 	// df must have only 2 columns

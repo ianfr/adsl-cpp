@@ -23,6 +23,9 @@ constexpr bool PAR_SORT_FLAG = false; // only worth it for very large GA populat
 constexpr auto LOOP_POL = std::execution::seq; // 'par' for parallel loops, 'seq' for non-parallel
 
 /* KRLS Regression */
-constexpr int MAX_KRLS_F = 2;
+constexpr int MAX_KRLS_F = 2; // max number of features for krls
+constexpr double KRLS_PARAM_MIN = 1e-8; // minimum value for the single krls parameter
+constexpr double KRLS_PARAM_MAX = 1000; // maximum value for the single krls parameter
+constexpr double KRLS_EPSILON = 1e-7; // accuracy for krls
 
 

@@ -1,6 +1,7 @@
 // STL includes
 #include "Includes/ADSL.h"
 #include <gsl/gsl_sf_bessel.h>
+#include <gsl/gsl_math.h>
 #include <numeric>
 
 using namespace std;
@@ -86,7 +87,7 @@ int main() {
     df4.setDesc("testing linear fit");
     auto linFit = df4 + adsl::fitLinear;
     cout << linFit.str();
-    cout << "prediction at x=5: " << linFit + adsl::evalFit(5);
+    cout << "prediction at x=5: " << linFit + adsl::evalFit({5});
 
     // Combine DataFrames vertically 
     DataFrame df5 = df4 + adsl::combineV(df2);
@@ -117,33 +118,29 @@ int main() {
     timeSeries + adsl::select({"date", "val1"}) + adsl::scatter2D({"testFin.png", "800,600"});
     adsl::writeToCSV(timeSeries, "TimeSeriesOut.csv");
 
-    // test the KRLS regression on fitting a function f(x,y)
-    // create the data
+    // test the KRLS regression on fitting a function f(x1,x1)
+    // sqrt x1^2 + x2^2
     auto fTest = [](double x1, double x2) {
-        return gsl_sf_bessel_J0(x1) * gsl_sf_bessel_J1(x2);
+        return gsl_hypot(x1, x2);
     };
-    int numPts = 30;
-    std::vector<double> x1Vec(numPts);
-    std::vector<double> x2Vec(numPts);
-    std::vector<double> yVec(numPts);
-    std::iota(x1Vec.begin(), x1Vec.end(), 0);
-    std::iota(x2Vec.begin(), x2Vec.end(), 0);
+    int numPts = 100;
+    adsl::vd x1Vec(numPts), x2Vec(numPts), yVec(numPts);
+    std::iota(x1Vec.begin(), x1Vec.end(), 1);
+    std::iota(x2Vec.begin(), x2Vec.end(), 1);
     for (int i=0; i < x1Vec.size(); i++) {
         yVec[i] = fTest(x1Vec[i], x2Vec[i]);
     }
-    DataList kx1(x1Vec, "x1");
-    DataList kx2(x2Vec, "x2");
-    DataList ky(yVec, "f(x1,x2)");
+    DataList kx1(x1Vec, "x1"), kx2(x2Vec, "x2"), ky(yVec, "f(x1,x2)");
     DataFrame testKrls;
     testKrls.setDesc("Testing KRLS Regression");
-    testKrls.addCol(kx1);
-    testKrls.addCol(kx2);
-    testKrls.addCol(ky);
+    for (auto kcol : {kx1, kx2, ky})
+        testKrls.addCol(kcol);
     cout << testKrls.str() << endl;
 
     adsl::vd krlsLabels = testKrls + adsl::select({"f(x1,x2)"}) + adsl::getFirst + adsl::toVec;
-    DataFrame krlsFeats = testKrls + adsl::deselect({"f(x1,x2)"});
-    krlsFeats + adsl::krlsReg(krlsLabels);
+    auto krlsFit = testKrls + adsl::deselect({"f(x1,x2)"}) + adsl::krlsReg(krlsLabels, "krlsModel.dat");
+    double sqrt3_3 = krlsFit + adsl::evalFit({3,3});
+    cout << "Sqrt of 3^2 + 3^2: " << sqrt3_3 << endl;
 
     cout << "Press Enter to exit... ";
     cin.get();
