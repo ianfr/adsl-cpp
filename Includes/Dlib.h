@@ -453,7 +453,9 @@ namespace adsl {
             // smaller values give better results but cause the algorithm to run slower.  You just have
             // to play with it to decide what balance of speed and accuracy is right for your problem.
             // Here we have set it to 0.001.
-            krls<kernel_type> krlsObj(kernel_type(0.1),0.001);
+            //krls<kernel_type> krlsObj(kernel_type(0.1), 0.001);
+
+            krls<kernel_type> krlsObj(kernel_type(KRLS_PARAM), KRLS_EPSILON);
 
             assert(features.getCols() <= MAX_BIN_F);
             std::vector<sample_type> samples;
@@ -473,9 +475,9 @@ namespace adsl {
 
             testSamp = {20,20};
             cout << "KRLS: " << krlsObj(testSamp) << endl;
-            testSamp = {17,18};
+            testSamp = {21,21};
             cout << "KRLS: " << krlsObj(testSamp) << endl;
-            testSamp = {6,5};
+            testSamp = {22,22};
             cout << "KRLS: " << krlsObj(testSamp) << endl;
             
 
