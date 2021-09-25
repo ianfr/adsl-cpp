@@ -438,7 +438,6 @@ namespace adsl {
         // NO ZERO VALUES IN THE LABELS
     // A features DataFrame is passed in w/ +
     // The argument is a vector of labels
-    // adapted from http://dlib.net/krls_ex.cpp.html
     
     auto krlsReg = [](std::vector<double> &labels) {
         auto retFunc = [&labels] (DataFrame &features) {
@@ -524,8 +523,7 @@ namespace adsl {
             err /= (double) samplesVal.size();
             err *= 100;
 
-            cout << "KRLS mean \% accuracy for validation set: " << 100 - err << " with param " << bestParam << endl;
-            
+            cout << "KRLS mean \% accuracy for validation set: " << 100 - err << " with param " << bestParam << endl;  
 
             DataFrame ret;
             return ret;
