@@ -87,7 +87,7 @@ int main() {
     df4.setDesc("testing linear fit");
     auto linFit = df4 + adsl::fitLinear;
     cout << linFit.str();
-    cout << "prediction at x=5: " << linFit + adsl::evalFit(5);
+    cout << "prediction at x=5: " << linFit + adsl::evalFit({5});
 
     // Combine DataFrames vertically 
     DataFrame df5 = df4 + adsl::combineV(df2);
@@ -138,7 +138,9 @@ int main() {
     cout << testKrls.str() << endl;
 
     adsl::vd krlsLabels = testKrls + adsl::select({"f(x1,x2)"}) + adsl::getFirst + adsl::toVec;
-    testKrls + adsl::deselect({"f(x1,x2)"}) + adsl::krlsReg(krlsLabels);
+    auto krlsFit = testKrls + adsl::deselect({"f(x1,x2)"}) + adsl::krlsReg(krlsLabels, "krlsModel.dat");
+    double sqrt3_3 = krlsFit + adsl::evalFit({3,3});
+    cout << "Sqrt of 3^2 + 3^2: " << sqrt3_3 << endl;
 
     cout << "Press Enter to exit... ";
     cin.get();

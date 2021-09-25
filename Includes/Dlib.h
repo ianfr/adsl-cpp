@@ -439,8 +439,8 @@ namespace adsl {
     // A features DataFrame is passed in w/ +
     // The argument is a vector of labels
     
-    auto krlsReg = [](std::vector<double> &labels) {
-        auto retFunc = [&labels] (DataFrame &features) {
+    auto krlsReg = [](std::vector<double> &labels, std::string modelFileName) {
+        auto retFunc = [&labels, modelFileName] (DataFrame &features) {
             using namespace std;
             using namespace dlib;
 
@@ -523,9 +523,15 @@ namespace adsl {
             err /= (double) samplesVal.size();
             err *= 100;
 
-            cout << "KRLS mean \% accuracy for validation set: " << 100 - err << " with param " << bestParam << endl;  
+            cout << "KRLS mean \% accuracy for validation set: " << 100 - err << " with param " << bestParam << endl;
+
+            // save the model to disk
+            serialize(modelFileName) << krlsObj;
 
             DataFrame ret;
+            ret.setDesc("KRLS"); // for use with evalFit
+            DataList dummyList({bestParam}, modelFileName); // for use with evalFit
+            ret.addCol(dummyList);
             return ret;
 
         };
