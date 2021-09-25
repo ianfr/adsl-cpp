@@ -1,5 +1,7 @@
 // STL includes
 #include "Includes/ADSL.h"
+#include <gsl/gsl_sf_bessel.h>
+#include <numeric>
 
 using namespace std;
 using adsl::DataFrame;
@@ -114,6 +116,34 @@ int main() {
     cout << "Time series results:\n" << timeSeries.str();
     timeSeries + adsl::select({"date", "val1"}) + adsl::scatter2D({"testFin.png", "800,600"});
     adsl::writeToCSV(timeSeries, "TimeSeriesOut.csv");
+
+    // test the KRLS regression on fitting a function f(x,y)
+    // create the data
+    auto fTest = [](double x1, double x2) {
+        return gsl_sf_bessel_J0(x1) * gsl_sf_bessel_J1(x2);
+    };
+    int numPts = 30;
+    std::vector<double> x1Vec(numPts);
+    std::vector<double> x2Vec(numPts);
+    std::vector<double> yVec(numPts);
+    std::iota(x1Vec.begin(), x1Vec.end(), 0);
+    std::iota(x2Vec.begin(), x2Vec.end(), 0);
+    for (int i=0; i < x1Vec.size(); i++) {
+        yVec[i] = fTest(x1Vec[i], x2Vec[i]);
+    }
+    DataList kx1(x1Vec, "x1");
+    DataList kx2(x2Vec, "x2");
+    DataList ky(yVec, "f(x1,x2)");
+    DataFrame testKrls;
+    testKrls.setDesc("Testing KRLS Regression");
+    testKrls.addCol(kx1);
+    testKrls.addCol(kx2);
+    testKrls.addCol(ky);
+    cout << testKrls.str() << endl;
+
+    adsl::vd krlsLabels = testKrls + adsl::select({"f(x1,x2)"}) + adsl::getFirst + adsl::toVec;
+    DataFrame krlsFeats = testKrls + adsl::deselect({"f(x1,x2)"});
+    krlsFeats + adsl::krlsReg(krlsLabels);
 
     cout << "Press Enter to exit... ";
     cin.get();

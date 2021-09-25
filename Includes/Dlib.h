@@ -433,4 +433,58 @@ namespace adsl {
         return retFunc;
     };
 
+
+    // Perform a Kernel Recursive Least Squares regression given:
+    // A features DataFrame is passed in w/ +
+    // The argument is a vector of labels
+    // adapted from http://dlib.net/krls_ex.cpp.html
+    
+    auto krlsReg = [](std::vector<double> &labels) {
+        auto retFunc = [&labels] (DataFrame &features) {
+            using namespace std;
+            using namespace dlib;
+
+            typedef matrix<double,MAX_KRLS_F,1> sample_type;
+            typedef radial_basis_kernel<sample_type> kernel_type;
+
+            // Here we declare an instance of the krls object.  The first argument to the constructor
+            // is the kernel we wish to use.  The second is a parameter that determines the numerical 
+            // accuracy with which the object will perform part of the regression algorithm.  Generally
+            // smaller values give better results but cause the algorithm to run slower.  You just have
+            // to play with it to decide what balance of speed and accuracy is right for your problem.
+            // Here we have set it to 0.001.
+            krls<kernel_type> krlsObj(kernel_type(0.1),0.001);
+
+            assert(features.getCols() <= MAX_BIN_F);
+            std::vector<sample_type> samples;
+            for (int rowI = 0; rowI < features.getRows(); rowI++) {
+                sample_type samp;
+                for (int colI = 0; colI < features.getCols(); colI++) {
+                    samp(colI) = features.getData(colI, rowI);
+                }
+                samples.push_back(samp);
+            }
+
+            for(int i = 0; i < samples.size(); i++) {
+                krlsObj.train(samples[i], labels[i]);
+            }
+
+            sample_type testSamp;
+
+            testSamp = {20,20};
+            cout << "KRLS: " << krlsObj(testSamp) << endl;
+            testSamp = {17,18};
+            cout << "KRLS: " << krlsObj(testSamp) << endl;
+            testSamp = {6,5};
+            cout << "KRLS: " << krlsObj(testSamp) << endl;
+            
+
+            DataFrame ret;
+            return ret;
+
+        };
+        return retFunc;
+    };
+    
+
 }

@@ -22,6 +22,7 @@ constexpr double GA_C_MAX = GRID_C_MAX; // maximum C for the bottom 25%
 constexpr bool PAR_SORT_FLAG = false; // only worth it for very large GA populations
 constexpr auto LOOP_POL = std::execution::seq; // 'par' for parallel loops, 'seq' for non-parallel
 
-
+/* KRLS Regression */
+constexpr int MAX_KRLS_F = 2;
 
 
