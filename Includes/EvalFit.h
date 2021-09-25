@@ -6,7 +6,7 @@
 namespace adsl {
 
 // Evaluate the result of a fit at a given point based on the DataFrame description
-// supports: OLS, KRLS, ARIMA (TODO)
+// supports: OLS, KRLS, [ARIMA (TODO)]
 // double <- DataFrame
 auto evalFit = [](std::vector<double> t) {
     auto retFunc = [t](DataFrame& df) {
