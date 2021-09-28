@@ -277,4 +277,45 @@ namespace adsl {
 		return indices;
 	}
 
+	// Class for working with a group of DataFrames
+	class DataFrameList {
+	private:	
+		std::vector<DataFrame> frames;
+
+	public:
+		// Getters
+		int size() { return frames.size(); }
+		DataFrame getFrame(int frameIndex);
+		DataFrame getFrame(std::string frameDesc);
+
+		// Other
+		void addFrame(DataFrame &df);
+		void loadFramesFromDir(std::string path, 
+			std::string exclude, std::string delim);
+
+		// Operator overloads
+
+		// DataFrameList <- DataFrameList
+		DataFrameList operator+ (std::function<DataFrameList(DataFrameList&)> f) {
+			return f(*this);
+		}
+
+	};
+
+	DataFrame DataFrameList::getFrame(int frameIndex) {
+		return frames.at(frameIndex);
+	}
+
+	DataFrame DataFrameList::getFrame(std::string frameDesc) {
+		for(auto df : frames) {
+			if(frameDesc.compare(df.getDesc()) == 0) {
+				return df;
+			}
+		}
+		std::cout << "getFrame() returning empty DF" << std::endl;
+		DataFrame empty;
+		return empty;
+	}
+
+
 }
