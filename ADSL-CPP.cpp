@@ -7,6 +7,7 @@
 using namespace std;
 using adsl::DataFrame;
 using adsl::DataList;
+using adsl::DataFrameList;
 
 int main() {
 
@@ -141,6 +142,11 @@ int main() {
     auto krlsFit = testKrls + adsl::deselect({"f(x1,x2)"}) + adsl::krlsReg(krlsLabels, "krlsModel.dat");
     double sqrt3_3 = krlsFit + adsl::evalFit({3,3});
     cout << "Sqrt of 3^2 + 3^2: " << sqrt3_3 << endl;
+
+    // Test DataFrameList
+    DataFrameList dflist;
+    dflist.loadFramesFromDir("Stocks", ".us.txt", ",");
+
 
     cout << "Press Enter to exit... ";
     cin.get();
