@@ -114,7 +114,7 @@ int main() {
     cout << "ARIMA results:\n" << arimaResults.str();
 
     // Test reading in time-series and plot 1 col of vals
-    DataFrame timeSeries = adsl::loadFromCSV_wDate("Datasets/finMini.csv", ",", true, 0);
+    DataFrame timeSeries = adsl::loadFromCSV_wDate("Datasets/finMini.csv", ",", true, 0, true);
     cout << "Time series results:\n" << timeSeries.str();
     timeSeries + adsl::select({"date", "val1"}) + adsl::scatter2D({"testFin.png", "800,600"});
     adsl::writeToCSV(timeSeries, "TimeSeriesOut.csv");
@@ -145,7 +145,8 @@ int main() {
 
     // Test DataFrameList
     DataFrameList dflist;
-    dflist.loadFramesFromDir("Stocks", ".us.txt", ",");
+    dflist.loadFramesFromDir("Datasets", ".us.txt", ",", false);
+    cout << dflist.size() << endl;
 
 
     cout << "Press Enter to exit... ";

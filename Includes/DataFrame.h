@@ -12,6 +12,7 @@
 #include <execution>
 #include <iomanip>
 #include <filesystem>
+#include <regex>
 
 namespace adsl {
 
@@ -277,80 +278,4 @@ namespace adsl {
 		}
 		return indices;
 	}
-
-	// Class for working with a group of DataFrames
-	// If you need direct access to 'frames' see:
-		// https://stackoverflow.com/questions/21646999/how-to-make-the-lambda-a-friend-of-a-class
-	class DataFrameList {
-	private:	
-		std::vector<DataFrame> frames;
-
-	public:
-		// Getters
-		int size() { return frames.size(); }
-		DataFrame getFrame(int frameIndex);
-		DataFrame getFrame(std::string frameDesc);
-
-		// Other
-		void addFrame(DataFrame &df);
-		void loadFramesFromDir(std::string path, 
-			std::string exclude, std::string delim);
-
-		// Operator overloads
-
-		// DataFrameList <- DataFrameList
-		DataFrameList operator+ (std::function<DataFrameList(DataFrameList&)> f) {
-			return f(*this);
-		}
-
-	};
-
-	DataFrame DataFrameList::getFrame(int frameIndex) {
-		return frames.at(frameIndex);
-	}
-
-	DataFrame DataFrameList::getFrame(std::string frameDesc) {
-		for(auto df : frames) {
-			if(frameDesc.compare(df.getDesc()) == 0) {
-				return df;
-			}
-		}
-		std::cout << "getFrame() returning empty DF" << std::endl;
-		DataFrame empty;
-		return empty;
-	}
-
-	void DataFrameList::addFrame(DataFrame &df) {
-		frames.push_back(df);
-	}
-
-	void DataFrameList::loadFramesFromDir(std::string path, 
-			std::string exclude, std::string delim)
-	{
-		// Get number of files in directory
-		auto dirIter = std::filesystem::directory_iterator(path);
-		int fileCount = std::count_if(
-			begin(dirIter),
-			end(dirIter),
-			[](auto& entry) { return entry.is_regular_file(); }
-		);
-		std::cout << "Number of files to load in: " << fileCount << std::endl;
-
-		// Load files into DFs one by one
-		// Strip out a given suffix (like .us.txt, .csv, etc)
-		dirIter = std::filesystem::directory_iterator(path);
-		for (auto const &entry : dirIter) {
-			/*
-			if (entry.is_regular_file()) {
-				std::stringstream stream;
-				stream << entry;
-				std::cout << stream.str() << std::endl;
-			}
-			*/
-			std::cout << entry << std::endl;
-		}
-
-	}
-
-
 }

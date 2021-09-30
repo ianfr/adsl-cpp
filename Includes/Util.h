@@ -28,7 +28,9 @@ namespace adsl {
 	// TODO: Fix breaking on processing empty lines
 	// TODO: Read in a description after a # symbol
 	// Adapted from https://stackoverflow.com/questions/19936483/c-reading-csv-file
-	DataFrame loadFromCSV_wDate(std::string filename, std::string delim, bool header, int dateColInd) {
+	DataFrame loadFromCSV_wDate(std::string filename, std::string delim, 
+	bool header, int dateColInd, bool ukFormat) 
+	{
 		std::ifstream ifs;
 		ifs.open(filename, std::ifstream::in);
 
@@ -61,8 +63,13 @@ namespace adsl {
 			else {
 				for (int i = 0; i < numCols; i++) {
 					if (i == dateColInd) {
-						date boostDate = from_uk_string(lineVec[i]);
-						df.appendToCol(i, (double) boostDate.day_number());
+						if (ukFormat) {
+							date boostDate = from_uk_string(lineVec[i]);
+							df.appendToCol(i, (double) boostDate.day_number());
+						} else {
+							date boostDate = from_string(lineVec[i]);
+							df.appendToCol(i, (double) boostDate.day_number());
+						}
 					}
 					else { 
 						df.appendToCol(i, std::stod(lineVec[i]));
