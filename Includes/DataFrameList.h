@@ -1,3 +1,5 @@
+#pragma once
+
 #include "DataFrame.h"
 #include "Util.h"
 
@@ -16,10 +18,14 @@ namespace adsl {
 		DataFrame getFrame(int frameIndex);
 		DataFrame getFrame(std::string frameDesc);
 
+        // Setters
+        void setFrames(std::vector<DataFrame> dfVec) {frames = dfVec;}
+
 		// Other
 		void addFrame(DataFrame &df);
 		void loadFramesFromDir(std::string path, 
 			std::string exclude, std::string delim, bool ukFormat);
+        std::vector<DataFrame> filter(std::function<bool(DataFrame)> predicate);
 
 		// Operator overloads
 
@@ -73,8 +79,8 @@ namespace adsl {
 
 				// strip quotes, backslashes, the path, and the suffix (i.e. ".us.txt" or ".csv")
 				nameStr = std::regex_replace( nameStr, std::regex("\""), "");
-				nameStr = std::regex_replace( nameStr, std::regex("/"), "");
 				nameStr = std::regex_replace( nameStr, std::regex(path), "");
+				nameStr = std::regex_replace( nameStr, std::regex("/"), "");
 				nameStr = std::regex_replace( nameStr, std::regex(exclude), "");
 
 				// Read in DataFrame
@@ -87,5 +93,17 @@ namespace adsl {
 			}
 		}
 	}
+
+    std::vector<DataFrame> DataFrameList::filter(
+        std::function<bool(DataFrame)> predicate) 
+    {
+        std::vector<DataFrame> ret;
+        for(auto df : frames) {
+            if (predicate(df)) {
+                ret.push_back(df);
+            }
+        }
+        return ret;
+    }
 
 }

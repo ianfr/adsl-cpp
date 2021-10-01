@@ -143,10 +143,21 @@ int main() {
     double sqrt3_3 = krlsFit + adsl::evalFit({3,3});
     cout << "Sqrt of 3^2 + 3^2: " << sqrt3_3 << endl;
 
-    // Test DataFrameList
+    // Test loading a DataFrameList from a directory
     DataFrameList dflist;
-    dflist.loadFramesFromDir("Datasets", ".us.txt", ",", false);
+    dflist.loadFramesFromDir("Datasets/Stocks", ".us.txt", ",", false);
     cout << dflist.size() << endl;
+
+    // Test filtering a DataFrameList
+    auto getAA = [](DataFrame df) {
+        cout << df.getDesc() << endl;
+        if (df.getDesc().compare("aa") == 0) {
+            return true;
+        }
+        return false;
+    };
+    auto filteredDfl = dflist + adsl::dfl::filter(getAA);
+    cout << filteredDfl.getFrame(0).str() << endl;
 
 
     cout << "Press Enter to exit... ";

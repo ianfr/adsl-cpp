@@ -6,6 +6,7 @@
 #include <numeric>
 
 #include "DataFrame.h"
+#include "DataFrameList.h"
 
 namespace adsl {
 
@@ -144,4 +145,22 @@ namespace adsl {
 		return retFunc;
 	};
 
-}
+	/* Operations on DataFrameLists */
+
+	namespace dfl {
+
+	// Filter values in a DataFrameList based on a custom predicate
+	// function<DataList> <- bool <- DataFrame
+	auto filter = [](std::function<bool(DataFrame)> predicate) {
+		auto retFunc = [predicate](DataFrameList& dfl) {
+			auto filtered = dfl.filter(predicate);
+			DataFrameList ret;
+			ret.setFrames(filtered);
+			return ret;
+		};
+		return retFunc;
+	};
+
+	} // end namespace dfl
+
+} // end namespace adsl
