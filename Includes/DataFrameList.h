@@ -24,8 +24,9 @@ namespace adsl {
 		// Other
 		void addFrame(DataFrame &df);
 		void loadFramesFromDir(std::string path, 
-			std::string exclude, std::string delim, bool ukFormat);
+			std::string exclude, std::string delim, int dateFormat);
         std::vector<DataFrame> filter(std::function<bool(DataFrame)> predicate);
+		std::vector<DataFrame> select(std::vector<std::string> names);
 
 		// Operator overloads
 
@@ -56,7 +57,7 @@ namespace adsl {
 	}
 
 	void DataFrameList::loadFramesFromDir(std::string path, 
-			std::string exclude, std::string delim, bool ukFormat)
+			std::string exclude, std::string delim, int dateFormat)
 	{
 		// Get number of files in directory
 		auto dirIter = std::filesystem::directory_iterator(path);
@@ -86,7 +87,7 @@ namespace adsl {
 				// Read in DataFrame
 				DataFrame df;
                 df = loadFromCSV_wDate(std::regex_replace( 
-                    stream.str(), std::regex("\""), ""), delim, true, 0, ukFormat);
+                    stream.str(), std::regex("\""), ""), delim, true, 0, dateFormat);
                 df.setDesc(nameStr);
 
                 frames.push_back(df);
@@ -105,5 +106,14 @@ namespace adsl {
         }
         return ret;
     }
+
+	std::vector<DataFrame> DataFrameList::select(std::vector<std::string> names) {
+		std::vector<DataFrame> ret;
+		for (auto df : frames) {
+			if (std::find(names.begin(), names.end(), df.getDesc()) != names.end())
+				ret.push_back(df);
+		}
+		return ret;
+	}
 
 }

@@ -145,7 +145,7 @@ int main() {
 
     // Test loading a DataFrameList from a directory
     DataFrameList dflist;
-    dflist.loadFramesFromDir("Datasets/Stocks", ".us.txt", ",", false);
+    dflist.loadFramesFromDir("Datasets/Stocks", ".us.txt", ",", -1);
     cout << dflist.size() << endl;
 
     // Test filtering a DataFrameList
@@ -157,7 +157,12 @@ int main() {
         return false;
     };
     auto filteredDfl = dflist + adsl::dfl::filter(getAA);
-    cout << filteredDfl.getFrame(0).str() << endl;
+    //cout << filteredDfl.getFrame(0).str() << endl;
+
+    // Test DataFrameList select
+    auto selectedDfl = dflist + adsl::dfl::select({"a"});
+    cout << selectedDfl.getFrame(0).str() << endl;
+
 
 
     cout << "Press Enter to exit... ";

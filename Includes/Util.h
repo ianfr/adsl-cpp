@@ -29,7 +29,7 @@ namespace adsl {
 	// TODO: Read in a description after a # symbol
 	// Adapted from https://stackoverflow.com/questions/19936483/c-reading-csv-file
 	DataFrame loadFromCSV_wDate(std::string filename, std::string delim, 
-	bool header, int dateColInd, bool ukFormat) 
+	bool header, int dateColInd, int dateFormat) 
 	{
 		std::ifstream ifs;
 		ifs.open(filename, std::ifstream::in);
@@ -63,8 +63,11 @@ namespace adsl {
 			else {
 				for (int i = 0; i < numCols; i++) {
 					if (i == dateColInd) {
-						if (ukFormat) {
+						if (dateFormat == 0) { // uk
 							date boostDate = from_uk_string(lineVec[i]);
+							df.appendToCol(i, (double) boostDate.day_number());
+						} else if (dateFormat == 1) { // us
+							date boostDate = from_us_string(lineVec[i]);
 							df.appendToCol(i, (double) boostDate.day_number());
 						} else {
 							date boostDate = from_string(lineVec[i]);
@@ -72,7 +75,12 @@ namespace adsl {
 						}
 					}
 					else { 
-						df.appendToCol(i, std::stod(lineVec[i]));
+						std::string tmpLineItem = lineVec[i];
+						try {
+							df.appendToCol(i, std::stod(lineVec[i]));
+						} catch(...) {
+							std::cout << "error with stod: " << tmpLineItem << std::endl;
+						}
 					}
 				}
 			}

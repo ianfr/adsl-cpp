@@ -150,7 +150,6 @@ namespace adsl {
 	namespace dfl {
 
 	// Filter values in a DataFrameList based on a custom predicate
-	// function<DataList> <- bool <- DataFrame
 	auto filter = [](std::function<bool(DataFrame)> predicate) {
 		auto retFunc = [predicate](DataFrameList& dfl) {
 			auto filtered = dfl.filter(predicate);
@@ -160,6 +159,18 @@ namespace adsl {
 		};
 		return retFunc;
 	};
+
+	// Select frames in a DataFrameList with matching descriptions
+	auto select = [](std::vector<std::string> names) {
+		auto retFunc = [names](DataFrameList &dfl) {
+			auto selected = dfl.select(names);
+			DataFrameList ret;
+			ret.setFrames(selected);
+			return ret;
+		};
+		return retFunc;
+	};
+
 
 	} // end namespace dfl
 
