@@ -2,6 +2,8 @@
 
 // maybe make friend classes that operate on a DataFrame with a lambda and return a DataFrame
 
+#include "TypesADSL.h"
+
 #include <string>
 #include <vector>
 #include <functional>
@@ -16,20 +18,44 @@
 
 namespace adsl {
 
-	// typedefs
-	typedef std::vector<double> vd;
-	typedef std::vector<std::vector<double>> vvd;
-
 	class DataList {
 	public:
 		std::string name;
-		vd vals;
+		vde vals;
+		DataType type;
 		DataList() {
-			name = "";
+			name = "no_name";
 		}
-		DataList(vd vec, std::string vecName) {
-			name = vecName;
-			vals = vec;
+		DataList(void* input, DataType type, std::string name) {
+			this->name = name;
+			this->type = type;
+			
+			if (this->type == INT) {
+				// this is a copy
+				std::vector<int> vec = * (std::vector<int> *) input;
+				for (auto vecVal : vec) {
+					DataEntry tmpDataEntry;
+					tmpDataEntry.intU = vecVal;
+					vals.push_back(tmpDataEntry);
+				}
+			} else if (this->type == DBL) {
+				// this is a copy
+				std::vector<double> vec = * (std::vector<double> *) input;
+				for (auto vecVal : vec) {
+					DataEntry tmpDataEntry;
+					tmpDataEntry.doubleU = vecVal;
+					vals.push_back(tmpDataEntry);
+				}
+			} else if (this->type == STR) {
+				// this is a copy
+				std::vector<std::string> vec = * (std::vector<std::string> *) input;
+				for (std::string vecVal : vec) {
+					DataEntry tmpDataEntry;
+					tmpDataEntry.strU = new char[vecVal.size()];
+					strcpy(tmpDataEntry.strU, vecVal.c_str());
+					vals.push_back(tmpDataEntry);
+				}
+			}
 		}
 
 		// String representation
@@ -58,6 +84,8 @@ namespace adsl {
 		}
 
 	};
+
+	/*
 	
 	typedef std::vector<DataList> vDL;
 
@@ -112,10 +140,12 @@ namespace adsl {
 		}
 
 	};
+	*/
 
 	// DataList
 
 	// String representation
+	/*
 	std::string DataList::str() {
 		using namespace std;
 		stringstream os;
@@ -127,7 +157,32 @@ namespace adsl {
 		os << "\n" << "[END DataList]" << endl;;
 		return os.str();
 	}
+	*/
 
+	
+
+	std::string DataList::str() {
+		using namespace std;
+		stringstream os;
+		os << "[BEGIN DataList] " << name << endl;
+		for (auto val : vals) {
+			if (type==INT) {
+				os << val.intU << " ";
+			} else if (type == DBL) {
+				os << val.doubleU << " ";
+			} else if (type == STR) {
+				for (int i=0; i < strlen(val.strU); i++) {
+					os << val.strU[i];
+				}
+			os << " ";
+			} else {
+				os << "ERR" << " ";
+			}
+		}
+		os << "\n" << "[END DataList] " << name << endl;
+		return os.str();
+	}
+/*
 
 	// DataFrame
 	
@@ -278,4 +333,6 @@ namespace adsl {
 		}
 		return indices;
 	}
+*/
+
 }
