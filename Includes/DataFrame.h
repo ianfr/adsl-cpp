@@ -20,9 +20,13 @@ namespace adsl {
 
 	class DataList {
 	public:
+		// Data
 		std::string name;
 		vde vals;
 		DataType type;
+
+
+		// Constructors
 		DataList() {
 			name = "no_name";
 		}
@@ -61,8 +65,33 @@ namespace adsl {
 		// String representation
 		std::string str();
 
-		// Function chaining operators
+		// Vector conversion
+		std::vector<int> toVec_int();
+		std::vector<double> toVec_dbl();
+		std::vector<std::string> toVec_str();
 
+		// Get value at a specified index
+		int getVal_int(int index) { return vals.at(index).intU; }
+		double getVal_dbl(int index) { return vals.at(index).doubleU; }
+		std::string getVal_str(int index) { 
+			std::string tmp = std::string(vals.at(index).strU);
+			return tmp; 
+		}
+
+		// Append one DataList to another
+		static DataList combineDLs(DataList dl1, DataList dl2);
+
+		// Filter
+		DataList filter_int(std::function<bool(int)> predicate);
+		DataList filter_dbl(std::function<bool(double)> predicate);
+		DataList filter_str(std::function<bool(std::string)> predicate);
+
+		// Map (i.e. "transform")
+		DataList map_int(std::function<int(int)> action);
+		DataList map_dbl(std::function<double(double)> action);
+		DataList map_str(std::function<std::string(std::string)> action);
+
+		// Function chaining operators
 		// DataList <- DataList
 		DataList operator+ (std::function<DataList(DataList&)> f) {
 			return f(*this);
@@ -78,12 +107,166 @@ namespace adsl {
 			return f(*this);
 		}
 
+		// std::vector<int> <- DataList
+		std::vector<int> operator+ (std::function<std::vector<int>(DataList&)> f) {
+			return f(*this);
+		}
 		// std::vector<double> <- DataList
 		std::vector<double> operator+ (std::function<std::vector<double>(DataList&)> f) {
 			return f(*this);
 		}
+		// std::vector<double> <- DataList
+		std::vector<std::string> operator+ (std::function<std::vector<std::string>(DataList&)> f) {
+			return f(*this);
+		}
 
 	};
+
+	// DataList
+
+	// String representation
+	std::string DataList::str() {
+		using namespace std;
+		stringstream os;
+		os << "[BEGIN DataList] " << name << endl;
+		for (auto val : vals) {
+			if (type==INT) {
+				os << val.intU << " ";
+			} else if (type == DBL) {
+				os << val.doubleU << " ";
+			} else if (type == STR) {
+				for (int i=0; i < strlen(val.strU); i++) {
+					os << val.strU[i];
+				}
+			os << " ";
+			} else {
+				os << "ERR" << " ";
+			}
+		}
+		os << "\n" << "[END DataList] " << name << endl;
+		return os.str();
+	}
+
+	// vector conversion
+	std::vector<int> DataList::toVec_int() {
+		std::vector<int> ret;
+		for (auto i : vals) {
+			ret.push_back(i.intU);
+		}
+		return ret;
+	}
+	std::vector<double> DataList::toVec_dbl() {
+		std::vector<double> ret;
+		for (auto i : vals) {
+			ret.push_back(i.doubleU);
+		}
+		return ret;
+	}
+	std::vector<std::string> DataList::toVec_str() {
+		std::vector<std::string> ret;
+		for (auto i : vals) {
+			std::string tmp = std::string(i.strU); // convert from char*
+			ret.push_back(tmp);
+		}
+		return ret;
+	}
+
+	// Append
+	// Automatically assume the type and name of the first DataList
+	DataList DataList::combineDLs(DataList dl1, DataList dl2) {
+		if (dl1.type != dl2.type) {
+			std::cerr << "<<ERROR>> [combineDLs] dl1.type != dl2.type" << std::endl;
+			exit(1);
+		}
+
+		if (dl1.type == INT) {
+			auto vec1 = dl1.toVec_int();
+			auto vec2 = dl2.toVec_int();
+			vec1.insert(vec1.end(), vec2.begin(), vec2.end());
+			return DataList(&vec1, dl1.type, dl1.name);
+		} else if (dl1.type == DBL) {
+			auto vec1 = dl1.toVec_dbl();
+			auto vec2 = dl2.toVec_dbl();
+			vec1.insert(vec1.end(), vec2.begin(), vec2.end());
+			return DataList(&vec1, dl1.type, dl1.name);
+		} else if (dl1.type == STR) {
+			auto vec1 = dl1.toVec_str();
+			auto vec2 = dl2.toVec_str();
+			vec1.insert(vec1.end(), vec2.begin(), vec2.end());
+			return DataList(&vec1, dl1.type, dl1.name);
+		} else {
+			std::cerr << "<<ERROR>> [combineDLs] control should not have reached here" << std::endl;
+			exit(1);
+		}
+	}
+
+	// Filter values based on a predicate
+	DataList DataList::filter_int(std::function<bool(int)> predicate) {
+		DataList ret;
+		ret.name = name;
+		ret.type = type;
+		for (auto val : vals) {
+			if (predicate(val.intU))
+				ret.vals.emplace_back(val.intU);
+		}
+		return ret;
+	}
+	DataList DataList::filter_dbl(std::function<bool(double)> predicate) {
+		DataList ret;
+		ret.name = name;
+		ret.type = type;
+		for (auto val : vals) {
+			if (predicate(val.doubleU))
+				ret.vals.emplace_back(val.doubleU);
+		}
+		return ret;
+	}
+	DataList DataList::filter_str(std::function<bool(std::string)> predicate) {
+		DataList ret;
+		ret.name = name;
+		ret.type = type;
+		for (auto val : vals) {
+			std::string tmp = std::string(val.strU);
+			if (predicate(tmp))
+				ret.vals.push_back(val);
+		}
+		return ret;
+	}
+
+	// Map (i.e. "transform")
+	DataList DataList::map_int(std::function<int(int)> action) {
+		DataList ret;
+		ret.type = type;
+		ret.name = name;
+		for (auto val : vals) {
+			ret.vals.emplace_back(action(val.intU));
+		}
+		return ret;
+	}
+	DataList DataList::map_dbl(std::function<double(double)> action) {
+		DataList ret;
+		ret.type = type;
+		ret.name = name;
+		for (auto val : vals) {
+			ret.vals.emplace_back(action(val.doubleU));
+		}
+		return ret;
+	}
+	DataList DataList::map_str(std::function<std::string(std::string)> action) {
+		DataList ret;
+		ret.type = type;
+		ret.name = name;
+		for (auto val : vals) {
+			std::string tmp = std::string(val.strU);
+			tmp = action(tmp);
+			DataEntry tmpDataEntry;
+			tmpDataEntry.strU = new char[tmp.size()];
+			strcpy(tmpDataEntry.strU, tmp.c_str());
+			ret.vals.emplace_back(tmpDataEntry);
+		}
+		return ret;
+	}
+
 
 	/*
 	
@@ -141,47 +324,6 @@ namespace adsl {
 
 	};
 	*/
-
-	// DataList
-
-	// String representation
-	/*
-	std::string DataList::str() {
-		using namespace std;
-		stringstream os;
-		os << "[BEGIN DataList]" << "\n" << "Name: " << name << endl;
-		os << "Data:" << endl;
-		for (auto val : vals) {
-			os << val << " ";
-		}
-		os << "\n" << "[END DataList]" << endl;;
-		return os.str();
-	}
-	*/
-
-	
-
-	std::string DataList::str() {
-		using namespace std;
-		stringstream os;
-		os << "[BEGIN DataList] " << name << endl;
-		for (auto val : vals) {
-			if (type==INT) {
-				os << val.intU << " ";
-			} else if (type == DBL) {
-				os << val.doubleU << " ";
-			} else if (type == STR) {
-				for (int i=0; i < strlen(val.strU); i++) {
-					os << val.strU[i];
-				}
-			os << " ";
-			} else {
-				os << "ERR" << " ";
-			}
-		}
-		os << "\n" << "[END DataList] " << name << endl;
-		return os.str();
-	}
 /*
 
 	// DataFrame
