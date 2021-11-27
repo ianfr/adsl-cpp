@@ -15,6 +15,7 @@
 #include <iomanip>
 #include <filesystem>
 #include <regex>
+#include <cassert>
 
 namespace adsl {
 
@@ -268,7 +269,8 @@ namespace adsl {
 	}
 
 
-	/*
+	// DataFrame
+	
 	
 	typedef std::vector<DataList> vDL;
 
@@ -286,24 +288,31 @@ namespace adsl {
 		std::string getDesc();
 		vDL getData();
 		DataList getData(int col);
-		double getData(int col, int row);
+		int getData_int(int col, int row);
+		double getData_dbl(int col, int row);
+		std::string getData_str(int col, int row);
 
 		// Setters
 		void setDesc(std::string s);
-		void setData(vDL& refMat);
+		void setData_dbl(vDL& refMat);
 
 		// Other
 		std::string str();
 		void addCol(DataList& refCol);
-		void appendToCol(int index, double value);
+		//void appendToCol(int index, double value);
+		void appendToCol(int index, void* value, DataType type);
 		void changeColName(int index, std::string value);
 		bool verifyDims();
 		void setNames(std::vector<std::string> names);
-		void init(int numCols);
-		void addRow(vd row);
+		void init(int numCols, DataType type);
+		void addRow_dbl(vd row);
 		int getColIndex(std::string colName);
-		void replaceRow(int rowInd, vd theRow);
-		std::vector<int> getSortedIndices(std::string colName, bool parFlag);
+		void replaceRow_dbl(int rowInd, vd theRow);
+		std::vector<int> getSortedIndices_dbl(std::string colName, bool parFlag);
+
+		DataFrame select(std::vector<std::string> nameVec);
+		DataFrame deselect(std::vector<std::string> nameVec);
+		DataFrame combineV(DataFrame& df); 
 
 		// Function chaining operators
 
@@ -322,10 +331,13 @@ namespace adsl {
 			return f(*this);
 		}
 
-	};
-	*/
-/*
+		// string <- DataFrame
+		std::string operator+ (std::function<std::string(DataFrame&)> f) {
+			return f(*this);
+		}
 
+	};
+	
 	// DataFrame
 	
 	// String representation
@@ -360,12 +372,51 @@ namespace adsl {
 
 	// For now, assume that i is a safe index
 	DataList DataFrame::getData(int col) {
+		if (col > m_data.size()-1) {
+			std::cout << "<<ERROR>> [getData] Column index out of bounds" << std::endl;
+			exit(1);
+		}
 		return m_data[col];
 	}
 
-	// For now, assume that i and j are safe indices
-	double DataFrame::getData(int col, int row) {
-		return m_data[col].vals[row];
+	int DataFrame::getData_int(int col, int row) {
+		if (col > m_data.size()-1) {
+			std::cout << "<<ERROR>> [getData_int] Column index out of bounds" << std::endl;
+			exit(1);
+		}
+		DataType colType = m_data[col].type;
+		if (colType != INT) {
+			std::cout << "<<ERROR>> [getData_int] Column type should be INT" << std::endl;
+			exit(1);
+		}
+		//return m_data[col].vals[row];
+		return m_data[col].getVal_int(row);	
+	}
+	double DataFrame::getData_dbl(int col, int row) {
+		if (col > m_data.size()-1) {
+			std::cout << "<<ERROR>> [getData_dbl] Column index out of bounds" << std::endl;
+			exit(1);
+		}
+		DataType colType = m_data[col].type;
+		if (colType != DBL) {
+			std::cout << "<<ERROR>> [getData_dbl] Column type should be DBL" << std::endl;
+			exit(1);
+		}
+		//return m_data[col].vals[row];
+		return m_data[col].getVal_dbl(row);	
+	}
+	std::string DataFrame::getData_str(int col, int row) {
+		if (col > m_data.size()-1) {
+			std::cout << "<<ERROR>> [getData_str] Column index out of bounds" << std::endl;
+			exit(1);
+		}
+		DataType colType = m_data[col].type;
+		if (colType != STR) {
+			std::cout << "<<ERROR>> [getData_str] Column type should be STR" << std::endl;
+			exit(1);
+		}
+		//return m_data[col].vals[row];
+		return m_data[col].getVal_str(row);	
 	}
 
 
@@ -374,7 +425,7 @@ namespace adsl {
 		m_description = s;
 	}
 
-	void DataFrame::setData(vDL& matRef) {
+	void DataFrame::setData_dbl(vDL& matRef) {
 		m_data = matRef;
 		m_rows = matRef[0].vals.size();
 		m_columns = matRef.size();
@@ -407,8 +458,32 @@ namespace adsl {
 		}
 	}
 
-	void DataFrame::appendToCol(int index, double value) {
-		m_data[index].vals.push_back(value);
+	// void DataFrame::appendToCol(int index, double value) {
+	// 	m_data[index].vals.push_back(value);
+	// }
+	void DataFrame::appendToCol(int index, void* value, DataType type) {
+		if (index > m_data.size()-1) {
+			std::cout << "<<ERROR>> [appendToCol] Column index out of bounds" << std::endl;
+			exit(1);
+		}
+
+		if (type == INT && type == m_data[index].type) {
+			DataEntry tmp;
+			tmp.intU = * (int *) value;
+			m_data[index].vals.push_back(tmp);
+		} else if (type == DBL && type == m_data[index].type) {
+			DataEntry tmp;
+			tmp.doubleU = * (double *) value;
+			m_data[index].vals.push_back(tmp);
+		} else if (type == STR && type == m_data[index].type) {
+			std::string tmpStr = * (std::string *) value;
+			DataEntry tmp;
+			tmp.strU = (char *) tmpStr.c_str();
+			m_data[index].vals.push_back(tmp);
+		} else {
+			std::cout << "<<ERROR>> [appendToCol] Typing mismatch" << std::endl;
+			exit(1);
+		}
 	}
 
 	void DataFrame::changeColName(int index, std::string value) {
@@ -422,28 +497,40 @@ namespace adsl {
 		}
 	}
 
-	void DataFrame::init(int numCols) {
+	void DataFrame::init(int numCols, DataType type) {
 		assert(m_columns == 0);
 		for (int i = 0; i < numCols; i++) {
-			vd tmp;
-			DataList tmpDL(tmp, "");
-			this->addCol(tmpDL);
+			if (type == INT) {
+				std::vector<int> tmp;
+				DataList tmpDL(&tmp, DataType::INT, "");
+				this->addCol(tmpDL);
+			} else if (type == DBL) {
+				std::vector<double> tmp;
+				DataList tmpDL(&tmp, DataType::DBL, "");
+				this->addCol(tmpDL);
+			} else { //str
+				std::vector<std::string> tmp;
+				DataList tmpDL(&tmp, DataType::STR, "");
+				this->addCol(tmpDL);
+			}
 		}
 		m_columns = numCols;
 	}
 
-	void DataFrame::addRow(vd theRow) {
+	void DataFrame::addRow_dbl(vd theRow) {
 		assert(m_columns == theRow.size());
 		for (int i = 0; i < m_columns; i++) {
-			m_data[i].vals.push_back(theRow[i]);
+			DataEntry tmpDataEntry;
+			tmpDataEntry.doubleU = theRow[i];
+			m_data[i].vals.push_back(tmpDataEntry);
 		}
 		m_rows += 1;
 	}
 
-	void DataFrame::replaceRow(int rowInd, vd theRow) {
+	void DataFrame::replaceRow_dbl(int rowInd, vd theRow) {
 		assert(m_columns == theRow.size());
 		for (int i = 0; i < m_columns; i++) {
-			m_data[i].vals[rowInd] = theRow[i];
+			m_data[i].vals[rowInd].doubleU = theRow[i];
 		}
 	}
 
@@ -458,14 +545,14 @@ namespace adsl {
 	}
 
 	// Sort the indices of a DataFrame by a certain Column
-	std::vector<int> DataFrame::getSortedIndices(std::string colName, bool parFlag) {
+	std::vector<int> DataFrame::getSortedIndices_dbl(std::string colName, bool parFlag) {
 		// create a list of indices
 		std::vector<int> indices(m_rows);
 		std::iota(indices.begin(), indices.end(), 0);
 		auto sortLambda = [&](const int& a, const int& b)-> bool {
 			// find the correct column index
 			int ind = this->getColIndex(colName);
-			return this->getData(ind, a) > this->getData(ind, b);
+			return this->getData_dbl(ind, a) > this->getData_dbl(ind, b);
 		};
 		if (parFlag) {
 			std::sort(std::execution::par, indices.begin(), indices.end(), sortLambda);
@@ -475,6 +562,45 @@ namespace adsl {
 		}
 		return indices;
 	}
-*/
+
+	DataFrame DataFrame::select(std::vector<std::string> nameVec) {
+		DataFrame ret;
+		ret.m_description = m_description;
+		for (DataList dl : m_data) {
+			if (std::find(nameVec.begin(), nameVec.end(), dl.name) != nameVec.end())
+				ret.addCol(dl);
+		}
+		return ret;
+	}
+
+	DataFrame DataFrame::deselect(std::vector<std::string> nameVec) {
+		DataFrame ret;
+		ret.m_description = m_description;
+		for (DataList dl : m_data) {
+			if (std::find(nameVec.begin(), nameVec.end(), dl.name) == nameVec.end())
+				ret.addCol(dl);
+		}
+		return ret;
+	}
+
+	DataFrame DataFrame::combineV(DataFrame& df) {
+		DataFrame ret;
+		if (m_columns == df.m_columns) {
+			for (int i = 0; i < m_columns; i++) {
+				DataList theCol = DataList::combineDLs(m_data[i], df.m_data[i]);
+				ret.addCol( theCol );
+			}
+			if (!ret.verifyDims()) {
+				std::cout << "[combineV] <<WARNING>> Dimension verification failed" << std::endl;
+			}
+			ret.setDesc(m_description);
+			return ret;
+		}
+		else {
+			std::cout << "[combineV] <<ERROR>> Unequal column lengths" << std::endl;
+			exit(1);
+			return ret;
+		}
+	}
 
 }

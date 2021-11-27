@@ -11,6 +11,8 @@ using namespace adsl;
 
 int main() {
 
+    // DataList
+    /*
     std::vector<int> a = {1, 2, 3, 4};
     DataList col1(&a, DataType::INT,"");
     std::cout << col1.str() << std::endl;
@@ -67,6 +69,40 @@ int main() {
     };
     auto col8 = col2 + dl_map_str(strMod);
     cout << col8.str() << endl;
+    */
 
-  return 0;
+    // DataFrame
+
+    // Create a DataFrame with one column
+    vd someData = { 1, 2, 3, 4 };
+    DataList someList(&someData, DataType::DBL, "hi");
+    DataFrame df;
+    df.addCol(someList);
+    cout << df.str() << endl;
+
+    // Test double <- DataList <- DataFrame
+    cout << df + df_getData(0) + dl_getVal_dbl(0) << endl;
+
+    // Test selection based on name
+    vd vec0 = {3,4,5};
+    vd vec1 = {6,7,8};
+    vd vec2 = {9,10,11};
+    DataList dl0(&vec0, DataType::DBL, "dogs");
+    DataList dl1(&vec1, DataType::DBL, "cats");
+    DataList dl2(&vec2, DataType::DBL, "birds");
+    DataFrame df1;
+    df1.addCol(dl0);
+    df1.addCol(dl1);
+    df1.addCol(dl2);
+    cout << df1 + df_select({"dogs", "birds"}) + df_str << endl;
+
+    // Test deselect
+    cout << df1 + df_deselect({"dogs"}) + df_str << endl;
+
+    // Test combineV
+    cout << df1 + df_combineV(df1) + df_str << endl;
+
+    
+
+    return 0;
 }

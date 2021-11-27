@@ -186,4 +186,47 @@ namespace adsl {
         return retFunc;
     };
 
+    // DataFrame Ops
+
+    auto df_str = [](DataFrame& df) {
+        return df.str();
+    };
+
+    auto df_getData = [](int col) {
+        auto retFunc = [col](DataFrame& df) {
+            return df.getData(col);
+        };
+        return retFunc;
+    };
+
+    // Select relevant columns in a DataFrame
+	// DataFrame <- DataFrame
+	auto df_select = [](std::vector<std::string> nameVec) {
+		auto retFunc = [nameVec](DataFrame& df) {
+			return df.select(nameVec);
+		};
+		return retFunc;
+	};
+
+    // Select all columns in a DataFrame except those listed in the input
+	// DataFrame <- DataFrame
+	auto df_deselect = [](std::vector<std::string> nameVec) {
+		auto retFunc = [nameVec](DataFrame& df) {
+			return df.deselect(nameVec);
+		};
+		return retFunc;
+	};
+
+    // Vertically combine two DataFrames (i.e. same # cols, add rows)
+	// The col names and description of df_1 will not be preserved
+	// DataFrame <- DataFrame <- DataFrame
+	auto df_combineV = [](DataFrame& df_2) {
+		auto retFunc = [&df_2](DataFrame& df_1) {
+			return df_1.combineV(df_2);
+		};
+		return retFunc;
+	};
+
+
+
 }
