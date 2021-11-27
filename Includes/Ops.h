@@ -1,177 +1,249 @@
-#pragma once
-// Basic operations on DataLists and DataFrames
+// Temporary stand-in for Ops.h while I work on the new chainable things
 
-#include <vector>
-#include <string>
-#include <numeric>
+#pragma once
 
 #include "DataFrame.h"
 #include "DataFrameList.h"
+#include <functional>
 
 namespace adsl {
 
-	// Operations on DataLists
+    // DataList ops
 
-	// Chainable form of .str()
+    // Chainable form of .str()
 	// string <- DataList
-	auto str = [](DataList& dl) {
+	auto dl_str = [](DataList& dl) {
 		return dl.str();
 	};
 
-	auto toVec = [](DataList& dl) {
-		return dl.vals;
-	};
+    // Convert DataList to vector
+	auto dl_toVec_int = [](DataList& dl) {
+		return dl.toVec_int();
+    };
+    auto dl_toVec_dbl = [](DataList& dl) {
+		return dl.toVec_dbl();
+    };
+    auto dl_toVec_str = [](DataList& dl) {
+		return dl.toVec_str();
+    };
 
-	// Get a single element of a DataList
-	// First element by default
-	// double <- DataList
-	auto single = [](double i = 0) {
-		auto retFunc = [i](DataList& dl) {
-			return dl.vals[i];
+    // Get a single element, first by default
+    auto dl_getVal_int = [](int i = 0) {
+        auto retFunc = [i](DataList& dl) {
+            return dl.getVal_int(i);
+        };
+        return retFunc;
+    };
+    auto dl_getVal_dbl = [](int i = 0) {
+        auto retFunc = [i](DataList& dl) {
+            return dl.getVal_dbl(i);
+        };
+        return retFunc;
+    };
+    auto dl_getVal_str = [](int i = 0) {
+        auto retFunc = [i](DataList& dl) {
+            return dl.getVal_str(i);
+        };
+        return retFunc;
+    };
+
+    // Append one DataList to another
+    auto dl_append = [](DataList& dl2) {
+		auto retFunc = [&dl2](DataList& dl1) {
+            return DataList::combineDLs(dl1, dl2);
 		};
 		return retFunc;
 	};
 
-	// Append one DataList to another
-	auto append = [](DataList& dl_1) {
-		auto retFunc = [&dl_1](DataList& dl) {
-			vd vec = dl.vals;
-			vec.insert(vec.end(), dl_1.vals.begin(), dl_1.vals.end());
-			return DataList(vec, dl.name);
-		};
-		return retFunc;
-	};
-
-	// Increment a DataList
-	// DataList <- DataList
-	auto inc = [](DataList& dl) {
-		DataList ret = dl;
-		for (double& val : ret.vals) {
-			val += 1;
-		}
-		return ret;
-	};
-
-	// Less than filter
-	// DataList <- DataList <- double
-	auto filterLess = [](double d) {
-		auto retFunc = [d](DataList& dl) {
-			DataList ret;
-			ret.name = dl.name;
-			for (double val : dl.vals) {
-				if (val < d)
-					ret.vals.emplace_back(val);
-			}
-			return ret;
-		};
-		return retFunc;
-	};
-
-	// Filter values in a DataList based on a custom predicate
-	// function<DataList> <- bool <- double
-	auto filter = [](std::function<bool(double)> predicate) {
+    // Filters (generic)
+    // Each _type suffix represents the datatype the predicate acts upon
+    auto dl_filter_int = [](std::function<bool(int)> predicate) {
 		auto retFunc = [predicate](DataList& dl) {
-			DataList ret;
-			ret.name = dl.name;
-			for (double val : dl.vals) {
-				if (predicate(val))
-					ret.vals.emplace_back(val);
-			}
-			return ret;
+			return dl.filter_int(predicate);
+		};
+		return retFunc;
+	};
+    auto dl_filter_dbl = [](std::function<bool(double)> predicate) {
+		auto retFunc = [predicate](DataList& dl) {
+			return dl.filter_dbl(predicate);
+		};
+		return retFunc;
+	};
+    auto dl_filter_str = [](std::function<bool(std::string)> predicate) {
+		auto retFunc = [predicate](DataList& dl) {
+			return dl.filter_str(predicate);
 		};
 		return retFunc;
 	};
 
-	// Basic operations on DataFrames
+    // Filters (convenience)
+    // LT="less than", GT="greater than", LTE="less than or equal to", etc.
+    auto dl_filterLT_int = [](int y) {
+        auto cond = [y](int x) {
+            if (x < y)
+                return true;
+            return false;
+        };
+        auto retFunc = [cond](DataList& dl) {
+            return dl + dl_filter_int(cond);
+        };
+        return retFunc;
+    };
+    auto dl_filterLTE_int = [](int y) {
+        auto cond = [y](int x) {
+            if (x <= y)
+                return true;
+            return false;
+        };
+        auto retFunc = [cond](DataList& dl) {
+            return dl + dl_filter_int(cond);
+        };
+        return retFunc;
+    };
+    auto dl_filterGT_int = [](int y) {
+        auto cond = [y](int x) {
+            if (x > y)
+                return true;
+            return false;
+        };
+        auto retFunc = [cond](DataList& dl) {
+            return dl + dl_filter_int(cond);
+        };
+        return retFunc;
+    };
+    auto dl_filterGTE_int = [](int y) {
+        auto cond = [y](int x) {
+            if (x >= y)
+                return true;
+            return false;
+        };
+        auto retFunc = [cond](DataList& dl) {
+            return dl + dl_filter_int(cond);
+        };
+        return retFunc;
+    };
+    auto dl_filterLT_dbl = [](double y) {
+        auto cond = [y](double x) {
+            if (x < y)
+                return true;
+            return false;
+        };
+        auto retFunc = [cond](DataList& dl) {
+            return dl + dl_filter_dbl(cond);
+        };
+        return retFunc;
+    };
+    auto dl_filterLTE_dbl = [](double y) {
+        auto cond = [y](double x) {
+            if (x <= y)
+                return true;
+            return false;
+        };
+        auto retFunc = [cond](DataList& dl) {
+            return dl + dl_filter_dbl(cond);
+        };
+        return retFunc;
+    };
+    auto dl_filterGT_dbl = [](double y) {
+        auto cond = [y](double x) {
+            if (x > y)
+                return true;
+            return false;
+        };
+        auto retFunc = [cond](DataList& dl) {
+            return dl + dl_filter_dbl(cond);
+        };
+        return retFunc;
+    };
+    auto dl_filterGTE_dbl = [](double y) {
+        auto cond = [y](double x) {
+            if (x >= y)
+                return true;
+            return false;
+        };
+        auto retFunc = [cond](DataList& dl) {
+            return dl + dl_filter_dbl(cond);
+        };
+        return retFunc;
+    };
 
-	// Get the first DataList in a DataFrame
-	// DataList <- DataFrame
-	auto getFirst = [](DataFrame& df) {
-		return df.getData()[0];
-	};
+    // Map (i.e. "transform")
+    auto dl_map_int = [](std::function<int(int)> action) {
+        auto retFunc = [action](DataList& dl) {
+            return dl.map_int(action);
+        };
+        return retFunc;
+    };
+    auto dl_map_dbl = [](std::function<double(double)> action) {
+        auto retFunc = [action](DataList& dl) {
+            return dl.map_dbl(action);
+        };
+        return retFunc;
+    };
+    auto dl_map_str = [](std::function<std::string(std::string)> action) {
+        auto retFunc = [action](DataList& dl) {
+            return dl.map_str(action);
+        };
+        return retFunc;
+    };
 
-	// Select relevant columns in a DataFrame
+    // DataFrame Ops
+
+    auto df_str = [](DataFrame& df) {
+        return df.str();
+    };
+
+    auto df_getData = [](int col) {
+        auto retFunc = [col](DataFrame& df) {
+            return df.getData(col);
+        };
+        return retFunc;
+    };
+
+    // Select relevant columns in a DataFrame
 	// DataFrame <- DataFrame
-	auto select = [](std::vector<std::string> nameVec) {
+	auto df_select = [](std::vector<std::string> nameVec) {
 		auto retFunc = [nameVec](DataFrame& df) {
-			DataFrame ret;
-			ret.setDesc(df.getDesc());
-			for (DataList dl : df.getData()) {
-				if (std::find(nameVec.begin(), nameVec.end(), dl.name) != nameVec.end())
-					ret.addCol(dl);
-			}
-			return ret;
+			return df.select(nameVec);
 		};
 		return retFunc;
 	};
 
-	// Select all columns in a DataFrame except those listed in the input
+    // Select all columns in a DataFrame except those listed in the input
 	// DataFrame <- DataFrame
-	auto deselect = [](std::vector<std::string> nameVec) {
+	auto df_deselect = [](std::vector<std::string> nameVec) {
 		auto retFunc = [nameVec](DataFrame& df) {
-			DataFrame ret;
-			ret.setDesc(df.getDesc());
-			for (DataList dl : df.getData()) {
-				if (std::find(nameVec.begin(), nameVec.end(), dl.name) == nameVec.end())
-					ret.addCol(dl);
-			}
-			return ret;
+			return df.deselect(nameVec);
 		};
 		return retFunc;
 	};
 
-	// Vertically combine two DataFrames (i.e. same # cols, add rows)
+    // Vertically combine two DataFrames (i.e. same # cols, add rows)
 	// The col names and description of df_1 will not be preserved
 	// DataFrame <- DataFrame <- DataFrame
-	auto combineV = [](DataFrame& df_1) {
-		auto retFunc = [&df_1](DataFrame& df) {
-			DataFrame ret;
-			if (df.getCols() == df_1.getCols()) {
-				for (int i = 0; i < df.getCols(); i++) {
-					DataList theCol = df.getData()[i] + append(df_1.getData()[i]);
-					ret.addCol( theCol );
-				}
-				if (!ret.verifyDims()) {
-					std::cout << "[combineV] <<WARNING>> Dimension verification failed" << std::endl;
-				}
-				ret.setDesc(df.getDesc());
-				return ret;
-			}
-			else {
-				std::cout << "[combineV] <<ERROR>> Unequal column lengths" << std::endl;
-				return ret;
-			}
+	auto df_combineV = [](DataFrame& df_2) {
+		auto retFunc = [&df_2](DataFrame& df_1) {
+			return df_1.combineV(df_2);
 		};
 		return retFunc;
 	};
 
-	/* Operations on DataFrameLists */
+    // DataFrameList Ops
 
-	namespace dfl {
-
-	// Filter values in a DataFrameList based on a custom predicate
-	auto filter = [](std::function<bool(DataFrame)> predicate) {
+    // Filter values in a DataFrameList based on a custom predicate
+	auto dfl_filter = [](std::function<bool(DataFrame)> predicate) {
 		auto retFunc = [predicate](DataFrameList& dfl) {
-			auto filtered = dfl.filter(predicate);
-			DataFrameList ret;
-			ret.setFrames(filtered);
-			return ret;
+			return dfl.filter(predicate);
 		};
 		return retFunc;
 	};
 
-	// Select frames in a DataFrameList with matching descriptions
-	auto select = [](std::vector<std::string> names) {
+    // Select frames in a DataFrameList with matching descriptions
+	auto dfl_select = [](std::vector<std::string> names) {
 		auto retFunc = [names](DataFrameList &dfl) {
-			auto selected = dfl.select(names);
-			DataFrameList ret;
-			ret.setFrames(selected);
-			return ret;
+			return dfl.select(names);
 		};
 		return retFunc;
 	};
 
-
-	} // end namespace dfl
-
-} // end namespace adsl
+}
