@@ -22,7 +22,7 @@ namespace adsl {
 			}
 			
 			// Write to csv file
-			writeToCSV(df, "Outputs/scatter2D.dat");
+			writeToCSV_dbl(df, "Outputs/scatter2D.dat");
 
 			// create a temporary gnuplot script and then run it
 			std::stringstream plotStream;

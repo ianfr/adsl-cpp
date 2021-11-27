@@ -2,6 +2,7 @@
 //#include "Includes/ADSL.h"
 #include "Includes/DataFrame.h"
 #include "Includes/Ops.h"
+#include "Includes/Plot.h"
 #include <gsl/gsl_sf_bessel.h>
 #include <gsl/gsl_math.h>
 #include <numeric>
@@ -69,7 +70,7 @@ int main() {
     };
     auto col8 = col2 + dl_map_str(strMod);
     cout << col8.str() << endl;
-    */
+    
 
     // DataFrame
 
@@ -128,6 +129,22 @@ int main() {
 
     // Write to a CSV
     writeToCSV_dbl(df1, "Outputs/df1.csv");
+
+    */
+
+    // Plot 2D
+    vd tmp0 = { 1, 2, 3, 4 };
+    vd tmp1 = { 1, 2, 3, 4 };
+    DataList lst0 (&tmp0, DataType::DBL, "DL 0");
+    #undef lst1
+    DataList lst1 (&tmp1, DataType::DBL, "DL 1");
+    DataFrame df2;
+    df2.addCol(lst0);
+    df2.addCol(lst1);
+    df2.setDesc("testing plotting 2d");
+    df2 + scatter2D({"testPlot.png", "800,600"});
+
+    
 
 
     return 0;
