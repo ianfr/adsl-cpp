@@ -3,6 +3,7 @@
 #pragma once
 
 #include "DataFrame.h"
+#include "DataFrameList.h"
 #include <functional>
 
 namespace adsl {
@@ -227,6 +228,22 @@ namespace adsl {
 		return retFunc;
 	};
 
+    // DataFrameList Ops
 
+    // Filter values in a DataFrameList based on a custom predicate
+	auto dfl_filter = [](std::function<bool(DataFrame)> predicate) {
+		auto retFunc = [predicate](DataFrameList& dfl) {
+			return dfl.filter(predicate);
+		};
+		return retFunc;
+	};
+
+    // Select frames in a DataFrameList with matching descriptions
+	auto dfl_select = [](std::vector<std::string> names) {
+		auto retFunc = [names](DataFrameList &dfl) {
+			return dfl.select(names);
+		};
+		return retFunc;
+	};
 
 }

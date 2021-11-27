@@ -102,7 +102,33 @@ int main() {
     // Test combineV
     cout << df1 + df_combineV(df1) + df_str << endl;
 
-    
+    // Test loading DFL from directory
+    DataFrameList dflist;
+    dflist.loadFramesFromDir("Datasets/Stocks", ".us.txt", ",", -1);
+    cout << dflist.size() << endl;
+
+    // Test filtering a DataFrameList
+    auto getAA = [](DataFrame df) {
+        cout << df.getDesc() << endl;
+        if (df.getDesc().compare("aa") == 0) {
+            return true;
+        }
+        return false;
+    };
+    auto filteredDfl = dflist + dfl_filter(getAA);
+    // cout << filteredDfl.getFrame(0) + df_str << endl;
+
+    // Test DataFrameList select
+    auto selectedDfl = dflist + dfl_select({"a"});
+    //cout << selectedDfl.getFrame(0) + df_str << endl;
+
+    // Test reading in a CSV file
+    DataFrame dfRead = loadFromCSV_dbl("Datasets/testMat.csv", ",", true);
+    cout << dfRead.str();
+
+    // Write to a CSV
+    writeToCSV_dbl(df1, "Outputs/df1.csv");
+
 
     return 0;
 }
