@@ -5,6 +5,7 @@
 #include "Includes/Plot.h"
 #include "Includes/GSL.h"
 #include "Includes/EvalFit.h"
+#include "Includes/TSA.h"
 #include <gsl/gsl_sf_bessel.h>
 #include <gsl/gsl_math.h>
 #include <numeric>
@@ -155,9 +156,17 @@ int main() {
     df4.addCol(lst_0);
     df4.addCol(lst_1);
     df4.setDesc("testing linear fit");
-    auto linFit = df4 + fitLinear;
+    DataFrame linFit = df4 + fitLinear;
     cout << linFit.str();
-    cout << "prediction at x=5: " << linFit + evalFit({5}) << endl;;
+    cout << "prediction at x=5: " << linFit + evalFit({5}) << endl;
+
+    // Test ARIMA
+    vd arimaTestVec = {16.9969,16.5969,16.802,17.1,17.3995,17.3975,17.5008,17.3998,17.6,17.4,17.3,17,17.8};
+    DataList arimaDL = DataList(&arimaTestVec, DataType::DBL, "Test Input");
+    DataFrame arimaDF;
+    arimaDF.addCol(arimaDL);
+    DataFrame arimaResults = arimaDF + autoARIMA(5);
+    cout << "ARIMA results:\n" << arimaResults.str();
 
 
     return 0;
