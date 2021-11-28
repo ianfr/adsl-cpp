@@ -3,6 +3,8 @@
 #include "Includes/DataFrame.h"
 #include "Includes/Ops.h"
 #include "Includes/Plot.h"
+#include "Includes/GSL.h"
+#include "Includes/EvalFit.h"
 #include <gsl/gsl_sf_bessel.h>
 #include <gsl/gsl_math.h>
 #include <numeric>
@@ -142,9 +144,20 @@ int main() {
     df2.addCol(lst0);
     df2.addCol(lst1);
     df2.setDesc("testing plotting 2d");
-    df2 + scatter2D({"testPlot.png", "800,600"});
+    //df2 + scatter2D({"testPlot.png", "800,600"});
 
-    
+    // Least-squares
+    tmp0 = { 1, 2, 3, 4 };
+    tmp1 = { 1, 2.2, 3, 3.9 };
+    DataList lst_0(&tmp0, DataType::DBL, "DL 0");
+    DataList lst_1(&tmp1, DataType::DBL, "DL 1");
+    DataFrame df4;
+    df4.addCol(lst_0);
+    df4.addCol(lst_1);
+    df4.setDesc("testing linear fit");
+    auto linFit = df4 + fitLinear;
+    cout << linFit.str();
+    cout << "prediction at x=5: " << linFit + evalFit({5}) << endl;;
 
 
     return 0;

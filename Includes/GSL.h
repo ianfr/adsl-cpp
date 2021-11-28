@@ -32,11 +32,17 @@ namespace adsl {
 	// DataFrame <- DataFrame
 	auto fitLinear = [](DataFrame& df) {
 		if (df.getCols() == 2) {
+			if (df.getData()[0].type != DBL || df.getData()[1].type != DBL) {
+				std::cout << "[fitLinear] <<ERROR>> At least one of the columns is not of type DBL " << std::endl;
+				exit(1);
+				DataFrame empty_df;
+				return empty_df;
+			}
 			// Setup
 			DataFrame ret;
-			auto xData = df.getData()[0].vals;
-			auto yData = df.getData()[1].vals;
-			size_t length = df.getData()[0].vals.size();
+			auto xData = df.getData()[0].toVec_dbl();
+			auto yData = df.getData()[1].toVec_dbl();
+			size_t length = xData.size();
 			double* x;
 			double* y;
 			x = (double*)malloc(length * sizeof(double));
@@ -47,9 +53,12 @@ namespace adsl {
 			// Fitting & r-squared
 			double c0, c1, cov00, cov01, cov11, sumsq;
 			gsl_fit_linear(x, 1, y, 1, length, &c0, &c1, &cov00, &cov01, &cov11, &sumsq);
-			DataList slope({ c1 }, "slope");
-			DataList intercept({ c0 }, "intercept");
-			DataList rsqrd({ gsl_stats_correlation(x, 1, y, 1, length) }, "r-squared");
+			vd tmpSlope = {c1};
+			DataList slope(&tmpSlope, DataType::DBL, "slope");
+			vd tmpIntercept = {c0};
+			DataList intercept(&tmpIntercept, DataType::DBL, "intercept");
+			vd tmpRsqrd = { gsl_stats_correlation(x, 1, y, 1, length) };
+			DataList rsqrd(&tmpRsqrd, DataType::DBL, "r-squared");
 
 			// Clean up
 			free(x);
@@ -64,6 +73,7 @@ namespace adsl {
 		}
 		else {
 			std::cout << "[fitLinear] <<ERROR>> DataFrame doesn't have two columns; has " << df.getCols() << std::endl;
+			exit(1);
 			DataFrame empty_df;
 			return empty_df;
 		}
