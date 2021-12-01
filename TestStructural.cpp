@@ -6,6 +6,7 @@
 #include "Includes/GSL.h"
 #include "Includes/EvalFit.h"
 #include "Includes/TSA.h"
+#include "Includes/Dlib.h"
 #include <gsl/gsl_sf_bessel.h>
 #include <gsl/gsl_math.h>
 #include <numeric>
@@ -167,6 +168,12 @@ int main() {
     arimaDF.addCol(arimaDL);
     DataFrame arimaResults = arimaDF + autoARIMA(5);
     cout << "ARIMA results:\n" << arimaResults.str();
+
+    // Test Dlib classifier
+    DataFrame irisData = loadFromCSV_dbl("Datasets/iris.csv", ",", true);
+    vector<double> labels = irisData + df_select({ "class" }) + df_getData(0) + dl_toVec_dbl;
+    DataFrame feats = irisData + df_deselect({ "class" });
+    DataFrame classResult = feats + binaryClassifier( labels ); // empty for now
 
 
     return 0;
