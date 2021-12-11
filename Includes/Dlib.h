@@ -186,7 +186,7 @@ namespace adsl {
             for (int rowI = 0; rowI < features.getRows(); rowI++) {
                 sample_type samp;
                 for (int colI = 0; colI < features.getCols(); colI++) {
-                    samp(colI) = features.getData(colI, rowI);
+                    samp(colI) = features.getData_dbl(colI, rowI);
                 }
                 samples.push_back(samp);
             }
@@ -296,10 +296,10 @@ namespace adsl {
                 };
 
                 DataFrame pop; // population
-                pop.init(3); // 3 cols
+                pop.init(3, DataType::DBL); // 3 cols
                 pop.setNames({ "gamma", "c", "accuracy" });
                 // make sure the initial guess is part of the initial population
-                pop.addRow({ x0[0], x0[1], bestAccuracy});
+                pop.addRow_dbl({ x0[0], x0[1], bestAccuracy});
 
                 // populate the population with random variations on the initial point
                 cout << "Initializing population..." << endl;
@@ -315,7 +315,7 @@ namespace adsl {
                     double tmpGamma = x0[0] * (1.0 + disG(rngG));
                     double tmpC = x0[1] * (1.0 + disC(rngC));
                     double tmpAcc = fitness(tmpGamma, tmpC);
-                    pop.addRow({ tmpGamma, tmpC, tmpAcc });
+                    pop.addRow_dbl({ tmpGamma, tmpC, tmpAcc });
                 });
                 cout << "Done initializing population." << endl;
                 //cout << pop.str();
@@ -325,18 +325,18 @@ namespace adsl {
                     // check if the desired threshold accuracy has been reached
                     for (int rowInd = 0; rowInd < pop.getRows(); rowInd++) {
                         int colInd = pop.getColIndex("accuracy");
-                        if (pop.getData(colInd, rowInd) >= THRESH_ACC) {
+                        if (pop.getData_dbl(colInd, rowInd) >= THRESH_ACC) {
                             int gammaInd = pop.getColIndex("gamma");
                             int cInd = pop.getColIndex("c");
-                            return { pop.getData(gammaInd, rowInd), pop.getData(cInd, rowInd), pop.getData(colInd, rowInd) };
+                            return { pop.getData_dbl(gammaInd, rowInd), pop.getData_dbl(cInd, rowInd), pop.getData_dbl(colInd, rowInd) };
                         }
                     }
 
                     // rank the population by their fitness
                     cout << "Ranking..." << endl;
-                    std::vector<int> rankedInds = pop.getSortedIndices("accuracy", PAR_SORT_FLAG);
+                    std::vector<int> rankedInds = pop.getSortedIndices_dbl("accuracy", PAR_SORT_FLAG);
                     cout << "Done ranking" << endl;
-                    cout << "Best accuracy during optimizing: " << pop.getData(2, rankedInds[0]) << endl;
+                    cout << "Best accuracy during optimizing: " << pop.getData_dbl(2, rankedInds[0]) << endl;
 
                     // mutate the top 49.999...% of the population **slightly**
                     int halfMarker = (int)(rankedInds.size() / 2);
@@ -352,12 +352,12 @@ namespace adsl {
                     double avgCTopHalf = 0; // keep track of this for later
                     
                     std::for_each(LOOP_POL, rankedInds.begin() + 1, rankedInds.begin() + halfMarker - 1, [&](auto& rInd) {
-                        avgGammaTopHalf += pop.getData(gammaInd, rInd);
-                        avgCTopHalf += pop.getData(cInd, rInd);
-                        double tmpGamma = pop.getData(gammaInd, rInd) * (1.0 + disG_1(rngG));
-                        double tmpC = pop.getData(cInd, rInd) * (1.0 + disC_1(rngC));
+                        avgGammaTopHalf += pop.getData_dbl(gammaInd, rInd);
+                        avgCTopHalf += pop.getData_dbl(cInd, rInd);
+                        double tmpGamma = pop.getData_dbl(gammaInd, rInd) * (1.0 + disG_1(rngG));
+                        double tmpC = pop.getData_dbl(cInd, rInd) * (1.0 + disC_1(rngC));
                         double tmpAcc = fitness(tmpGamma, tmpC);
-                        pop.replaceRow(rInd, { tmpGamma, tmpC, tmpAcc });
+                        pop.replaceRow_dbl(rInd, { tmpGamma, tmpC, tmpAcc });
                      });
 
                     avgGammaTopHalf = avgGammaTopHalf / (double)halfMarker;
@@ -372,7 +372,7 @@ namespace adsl {
                         double tmpGamma = avgGammaTopHalf * (1.0 + disG_2(rngG));
                         double tmpC = avgCTopHalf * (1.0 + disC_2(rngC));
                         double tmpAcc = fitness(tmpGamma, tmpC);
-                        pop.replaceRow(rInd, { tmpGamma, tmpC, tmpAcc });
+                        pop.replaceRow_dbl(rInd, { tmpGamma, tmpC, tmpAcc });
                     });
 
                     // replace the bottom 25% of the population with purely random solutions
@@ -383,15 +383,15 @@ namespace adsl {
                         double tmpGamma = disG_3(rngG);
                         double tmpC = disC_3(rngC);
                         double tmpAcc = fitness(tmpGamma, tmpC);
-                        pop.replaceRow(rInd, { tmpGamma, tmpC, tmpAcc });
+                        pop.replaceRow_dbl(rInd, { tmpGamma, tmpC, tmpAcc });
                      });
 
                 } // end generations loop
 
-                std::vector<int> rankedInds = pop.getSortedIndices("accuracy", PAR_SORT_FLAG);
-                return { pop.getData(0, rankedInds[0]), 
-                    pop.getData(1, rankedInds[0]),
-                    pop.getData(2, rankedInds[0]) };
+                std::vector<int> rankedInds = pop.getSortedIndices_dbl("accuracy", PAR_SORT_FLAG);
+                return { pop.getData_dbl(0, rankedInds[0]), 
+                    pop.getData_dbl(1, rankedInds[0]),
+                    pop.getData_dbl(2, rankedInds[0]) };
             };
             
             vd x0 = {bestGamma, bestC};
@@ -454,7 +454,7 @@ namespace adsl {
             for (int rowI = 0; rowI < features.getRows(); rowI++) {
                 sample_type samp;
                 for (int colI = 0; colI < features.getCols(); colI++) {
-                    samp(colI) = features.getData(colI, rowI);
+                    samp(colI) = features.getData_dbl(colI, rowI);
                 }
                 samples.push_back(samp);
             }
@@ -530,7 +530,8 @@ namespace adsl {
 
             DataFrame ret;
             ret.setDesc("KRLS"); // for use with evalFit
-            DataList dummyList({bestParam}, modelFileName); // for use with evalFit
+            vd dummyVec = {bestParam};
+            DataList dummyList(&dummyVec, DataType::DBL, modelFileName); // for use with evalFit
             ret.addCol(dummyList);
             return ret;
 

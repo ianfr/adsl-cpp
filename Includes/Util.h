@@ -28,7 +28,7 @@ namespace adsl {
 	// TODO: Fix breaking on processing empty lines
 	// TODO: Read in a description after a # symbol
 	// Adapted from https://stackoverflow.com/questions/19936483/c-reading-csv-file
-	DataFrame loadFromCSV_wDate(std::string filename, std::string delim, 
+	DataFrame loadFromCSV_wDate_dbl(std::string filename, std::string delim, 
 	bool header, int dateColInd, int dateFormat) 
 	{
 		std::ifstream ifs;
@@ -50,7 +50,7 @@ namespace adsl {
 				gotNumCols = true;
 				for (int i = 0; i < numCols; i++) {
 					vd tmpvd;
-					DataList tmpDL(tmpvd, "");
+					DataList tmpDL(&tmpvd, DataType::DBL, "");
 					df.addCol(tmpDL);
 				}
 			}
@@ -65,19 +65,23 @@ namespace adsl {
 					if (i == dateColInd) {
 						if (dateFormat == 0) { // uk
 							date boostDate = from_uk_string(lineVec[i]);
-							df.appendToCol(i, (double) boostDate.day_number());
+							double dblDayNum = (double) boostDate.day_number();
+							df.appendToCol(i, &dblDayNum, DataType::DBL);
 						} else if (dateFormat == 1) { // us
 							date boostDate = from_us_string(lineVec[i]);
-							df.appendToCol(i, (double) boostDate.day_number());
+							double dblDayNum = (double) boostDate.day_number();
+							df.appendToCol(i, &dblDayNum, DataType::DBL);
 						} else {
 							date boostDate = from_string(lineVec[i]);
-							df.appendToCol(i, (double) boostDate.day_number());
+							double dblDayNum = (double) boostDate.day_number();
+							df.appendToCol(i, &dblDayNum, DataType::DBL);
 						}
 					}
 					else { 
 						std::string tmpLineItem = lineVec[i];
 						try {
-							df.appendToCol(i, std::stod(lineVec[i]));
+							double tmpVal = std::stod(lineVec[i]);
+							df.appendToCol(i, &tmpVal, DataType::DBL);
 						} catch(...) {
 							std::cout << "error with stod: " << tmpLineItem << std::endl;
 						}
@@ -101,7 +105,7 @@ namespace adsl {
 	// TODO: Fix breaking on processing empty lines
 	// TODO: Read in a description after a # symbol
 	// Adapted from https://stackoverflow.com/questions/19936483/c-reading-csv-file
-	DataFrame loadFromCSV(std::string filename, std::string delim, bool header) {
+	DataFrame loadFromCSV_dbl(std::string filename, std::string delim, bool header) {
 		std::ifstream ifs;
 		ifs.open(filename, std::ifstream::in);
 
@@ -121,7 +125,7 @@ namespace adsl {
 				gotNumCols = true;
 				for (int i = 0; i < numCols; i++) {
 					vd tmpvd;
-					DataList tmpDL(tmpvd, "");
+					DataList tmpDL(&tmpvd, DataType::DBL, "");
 					df.addCol(tmpDL);
 				}
 			}
@@ -133,7 +137,8 @@ namespace adsl {
 			}
 			else {
 				for (int i = 0; i < numCols; i++) {
-					df.appendToCol(i, std::stod(lineVec[i]));
+					double tmpVal = std::stod(lineVec[i]);
+					df.appendToCol(i, &tmpVal, DataType::DBL);
 				}
 			}
 
@@ -151,7 +156,7 @@ namespace adsl {
 
 	// Write a DataFrame to a CSV
 	// Use # for the description so gnuplot skips it
-	void writeToCSV(DataFrame& df, std::string filename) {
+	void writeToCSV_dbl(DataFrame& df, std::string filename) {
 		std::ofstream handle;
 		handle.open(filename);
 		auto theData = df.getData();
@@ -159,10 +164,10 @@ namespace adsl {
 		for (size_t i = 0; i < theData[0].vals.size(); i++) { // rows
 			for (size_t j = 0; j < theData.size() - 1; j++) { // columns - 1
 				//handle << theData[j].vals[i] << ",";
-				handle << std::fixed << std::setprecision(15) << theData[j].vals[i] << " ";
+				handle << std::fixed << std::setprecision(15) << theData[j].getVal_dbl(i) << " ";
 			}
 			// last entry on line needs a \n not a ,
-			handle << theData[theData.size() - 1].vals[i] << "\n";
+			handle << theData[theData.size() - 1].getVal_dbl(i) << "\n";
 		}
 		handle.close();
 	}

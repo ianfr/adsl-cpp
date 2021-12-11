@@ -25,8 +25,8 @@ namespace adsl {
 		void addFrame(DataFrame &df);
 		void loadFramesFromDir(std::string path, 
 			std::string exclude, std::string delim, int dateFormat);
-        std::vector<DataFrame> filter(std::function<bool(DataFrame)> predicate);
-		std::vector<DataFrame> select(std::vector<std::string> names);
+        DataFrameList filter(std::function<bool(DataFrame)> predicate);
+		DataFrameList select(std::vector<std::string> names);
 
 		// Operator overloads
 
@@ -47,7 +47,7 @@ namespace adsl {
 				return df;
 			}
 		}
-		std::cout << "getFrame() returning empty DF" << std::endl;
+		std::cout << "[getFrame] <<WARNING>> returning empty DF" << std::endl;
 		DataFrame empty;
 		return empty;
 	}
@@ -86,7 +86,7 @@ namespace adsl {
 
 				// Read in DataFrame
 				DataFrame df;
-                df = loadFromCSV_wDate(std::regex_replace( 
+                df = loadFromCSV_wDate_dbl(std::regex_replace( 
                     stream.str(), std::regex("\""), ""), delim, true, 0, dateFormat);
                 df.setDesc(nameStr);
 
@@ -95,24 +95,28 @@ namespace adsl {
 		}
 	}
 
-    std::vector<DataFrame> DataFrameList::filter(
+    DataFrameList DataFrameList::filter(
         std::function<bool(DataFrame)> predicate) 
     {
-        std::vector<DataFrame> ret;
+        std::vector<DataFrame> tmp;
         for(auto df : frames) {
             if (predicate(df)) {
-                ret.push_back(df);
+                tmp.push_back(df);
             }
         }
+		DataFrameList ret;
+		ret.frames = tmp;
         return ret;
     }
 
-	std::vector<DataFrame> DataFrameList::select(std::vector<std::string> names) {
-		std::vector<DataFrame> ret;
+	DataFrameList DataFrameList::select(std::vector<std::string> names) {
+		std::vector<DataFrame> tmp;
 		for (auto df : frames) {
 			if (std::find(names.begin(), names.end(), df.getDesc()) != names.end())
-				ret.push_back(df);
+				tmp.push_back(df);
 		}
+		DataFrameList ret;
+		ret.frames = tmp;
 		return ret;
 	}
 

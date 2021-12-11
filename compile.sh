@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # the name of the main ADSL cpp source file
-export ADSL_MAIN_SRC=finance
+export ADSL_MAIN_SRC=ADSL-CPP
 
 # the desired name of the main executable
-export ADSL_MAIN_EX=fin
+export ADSL_MAIN_EX=main
 
 rm $ADSL_MAIN_EX
 

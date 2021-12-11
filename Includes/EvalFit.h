@@ -11,13 +11,13 @@ namespace adsl {
 auto evalFit = [](std::vector<double> t) {
     auto retFunc = [t](DataFrame& df) {
         if (df.getDesc() == "gsl_fit_linear") {
-            double m = df + select({ "slope" }) + getFirst + single();
-            double b = df + select({ "intercept" }) + getFirst + single();
+            double m = df + df_select({ "slope" }) + df_getData(0) + dl_getVal_dbl(0);
+            double b = df + df_select({ "intercept" }) + df_getData(0) + dl_getVal_dbl(0);
             return (m * t[0]) + b;
         }
         else if (df.getDesc() == "KRLS") {
             std::string modelFileName = df.getData()[0].name;
-            double param = df.getData()[0].vals[0];
+            double param = df.getData()[0].getVal_dbl(0);
             using namespace dlib;
             typedef matrix<double,MAX_KRLS_F,1> sample_type;
             typedef radial_basis_kernel<sample_type> kernel_type;

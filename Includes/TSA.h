@@ -100,7 +100,7 @@ namespace adsl {
     // DataList <- DataList <- int
     auto autoARIMA =  [](int futDays) {
         auto retFunc =  [futDays](DataFrame& df) {
-            DataList dl = df + adsl::getFirst;
+            DataList dl = df + df_getData(0);
             int i, N, d, D, L;
             double *inp;
             int p, q, P, Q, s, r;
@@ -132,7 +132,7 @@ namespace adsl {
             N = dl.vals.size();
             inp = (double*)malloc(sizeof(double)* N);
             for (i = 0; i < N; ++i) {
-                inp[i] = dl.vals[i];
+                inp[i] = dl.getVal_dbl(i);
             }
         
             obj = auto_arima_init(order,seasonal,s,r,N);
@@ -161,8 +161,8 @@ namespace adsl {
             // Convert the predictions and errors to a DataFrame and return
             std::vector<double> predVals(xpred, xpred + L);
             std::vector<double> errorVals(amse, amse + L);
-            DataList predList(predVals, "Predicted Value");
-            DataList errorList(errorVals, "AMSE Error");
+            DataList predList(&predVals, DataType::DBL, "Predicted Value");
+            DataList errorList(&errorVals, DataType::DBL, "AMSE Error");
             DataFrame ret;
             ret.addCol(predList);
             ret.addCol(errorList);
