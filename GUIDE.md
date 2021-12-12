@@ -153,7 +153,7 @@ df1 + scatter2D({"testPlot.png", "800,600"});
 
 # Regression
 ## Perform Linear Regression
-The `fitLinear` function from GSL.h expects as input a single `DataFrame` with the x-values in the first column and y-values in the second column. The `evalFit` function from EvalFit.h expects two things as input: first, the chained result of `fitLinear` (or in the future other fitting functions) and second, the x-value at which to evaluate the fit.
+The `fitLinear` function from GSL.h expects as input a single `DataFrame` with the x-values in the first column and y-values in the second column. The `evalFit` function from EvalFit.h expects two things as input: first, the chained result of `fitLinear` (or other fitting functions) and second, the x-value at which to evaluate the fit.
 ```cpp
 tmp0 = { 1, 2, 3, 4 };
 tmp1 = { 1, 2.2, 3, 3.9 };
@@ -166,6 +166,38 @@ df1.setDesc("testing linear fit");
 DataFrame linFit = df4 + fitLinear;
 cout << linFit.str();
 cout << "prediction at x=5: " << linFit + evalFit({5}) << endl;
+```
+## Multivariate KRLS Regression
+According to RDocumentation, Kernel-Based Regularized Least Squares (KRLS) is "a machine learning method described in Hainmueller and Hazlett (2014) that allows users to solve regression and classification problems..."
+
+In the example below, a KRLS model is trained to predict the hypotenuse of a triangle. The hypotenuse function is simply sqrt(x1^2 + x2^2), so it is a function of two variables. (Most of the code is for generating test data).
+
+Note the use of `evalFit` just as with linear regression.
+```cpp
+// test the KRLS regression on fitting a function f(x1,x1)
+// sqrt x1^2 + x2^2
+auto fTest = [](double x1, double x2) {
+    return gsl_hypot(x1, x2);
+};
+int numPts = 100;
+vd x1Vec(numPts), x2Vec(numPts), yVec(numPts);
+iota(x1Vec.begin(), x1Vec.end(), 1);
+iota(x2Vec.begin(), x2Vec.end(), 1);
+for (int i=0; i < x1Vec.size(); i++) {
+    yVec[i] = fTest(x1Vec[i], x2Vec[i]);
+}
+DataList kx1(&x1Vec, DataType::DBL, "x1"), kx2(&x2Vec, DataType::DBL, "x2"), 
+    ky(&yVec, DataType::DBL, "f(x1,x2)");
+DataFrame testKrls;
+testKrls.setDesc("Testing KRLS Regression");
+for (auto kcol : {kx1, kx2, ky})
+    testKrls.addCol(kcol);
+cout << testKrls.str() << endl;
+
+vd krlsLabels = testKrls + df_select({"f(x1,x2)"}) + df_getData(0) + dl_toVec_dbl;
+auto krlsFit = testKrls + df_deselect({"f(x1,x2)"}) + krlsReg(krlsLabels, "krlsModel.dat");
+double sqrt3_3 = krlsFit + adsl::evalFit({3,3});
+cout << "Sqrt of 3^2 + 3^2: " << sqrt3_3 << endl;
 ```
 
 # Time-Series Analysis
