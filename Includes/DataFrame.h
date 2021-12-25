@@ -3,6 +3,7 @@
 // maybe make friend classes that operate on a DataFrame with a lambda and return a DataFrame
 
 #include "TypesADSL.h"
+#include "TA_includes.h"
 
 #include <string>
 #include <vector>
@@ -91,6 +92,9 @@ namespace adsl {
 		DataList map_int(std::function<int(int)> action);
 		DataList map_dbl(std::function<double(double)> action);
 		DataList map_str(std::function<std::string(std::string)> action);
+
+		// Moving Average
+		DataList calcMA(std::string maType, int period);
 
 		// Function chaining operators
 		// DataList <- DataList
@@ -266,6 +270,44 @@ namespace adsl {
 			ret.vals.emplace_back(tmpDataEntry);
 		}
 		return ret;
+	}
+
+	// Moving Average
+	// Assumes the DataList has double values
+	DataList DataList::calcMA(std::string maType, int period) {
+		double *dataVals = (double*) malloc(sizeof(double) * this->vals.size());
+		for (int i=0; i < this->vals.size(); i++) {
+			dataVals[i] = this->vals.at(i).doubleU;
+		}
+		double *out = (double*) malloc(sizeof(double) * this->vals.size());
+		int outBeg;
+		int outNbElement;
+
+		auto maTypeInternal = TA_MAType_SMA;
+		if (maType.compare("SMA") == 0) {
+			maTypeInternal = TA_MAType_SMA;
+		} else if (maType.compare("EMA") == 0) {
+			maTypeInternal = TA_MAType_EMA;
+		} else {
+			std::cout << "[calcMA] <<WARNING>> unrecognized moving average type, defaulting to TA_MAType_SMA" << std::endl;
+			maType = "SMA";
+		}
+
+		TA_RetCode retCode = TA_MA( 0, this->vals.size() - 1,
+			dataVals,
+			period, maTypeInternal,
+			&outBeg, &outNbElement, &out[0] );
+		
+		vd outVec;
+		for( int i=0; i < outNbElement; i++ ) {
+			//printf( "Day %d = %f\n", outBeg+i, out[i] );
+			outVec.push_back(out[i]);
+		}
+
+		DataList ret(&outVec, DataType::DBL, maType + " " + (this->name));
+
+		return ret;
+		
 	}
 
 

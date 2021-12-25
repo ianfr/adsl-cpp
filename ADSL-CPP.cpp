@@ -13,23 +13,13 @@ int main() {
     DataList col1(&a, DataType::INT,"");
     std::cout << col1.str() << std::endl;
 
-    // test compile.sh & ta-lib
-    TA_Real    closePrice[400];
-    TA_Real    out[400];
-    TA_Integer outBeg;
-    TA_Integer outNbElement;
-
-    for (int i=0; i < 400; i++) {
-        closePrice[i] = (double)i;
+    // test ta-lib sma
+    vd testPricesVec;
+    for (int i=0; i < 100; i++) {
+        testPricesVec.push_back(i);
     }
-
-    TA_RetCode retCode = TA_MA( 0, 399,
-        &closePrice[0],
-        30,TA_MAType_SMA,
-        &outBeg, &outNbElement, &out[0] );
-    
-    for( int i=0; i < outNbElement; i++ )
-        printf( "Day %d = %f\n", outBeg+i, out[i] );
+    DataList testPrices(&testPricesVec, DataType::DBL, "some test prices");
+    cout << testPrices + dl_MA("SMA", 30) + dl_str << endl;
 
 
     cout << "Press Enter to exit... ";
