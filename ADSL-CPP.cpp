@@ -22,7 +22,6 @@ int main() {
     // cout << testPrices + dl_MA("SMA", 30) + dl_str << endl;
     // cout << testPrices + dl_MA("EMA", 30) + dl_str << endl;
 
-    // double x = get<double>(testPrices.at(3));
     double x = testPrices.at_dbl(3);
 
     cout << x << endl;

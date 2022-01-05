@@ -104,34 +104,6 @@ namespace adsl {
 		DataList calcMA(std::string maType, int period);
 
 		// Basic STL vector methods
-		// int at_int(int index);
-		// double at_dbl(int index);
-		// std::string at_str(int index); 
-
-		// template<typename T, typename Td>
-		// T at(int index, Td dummyVal) {
-		// 	// if (dummyType == DataType::DBL) {
-		// 	// 	return 1;
-		// 	// } else {
-		// 	// 	return "hello";
-		// 	// }
-		// 	if (std::is_same_v<double, Td>) {
-		// 		return 1.0;
-		// 	} else {
-		// 		return std::string("hi");
-		// 	}
-		// }
-		// auto at(int index);
-
-		// inspired by https://stackoverflow.com/questions/42125179/c-template-argument-type-deduction
-		// template<auto object, class T = std::decay_t<decltype(*object)>>
-		// T at(int index) {
-		// 	if (this->type == DataType::DBL) {
-		// 		return 1.0;
-		// 	} else {
-		// 		return std::string("hi");
-		// 	}
-		// }
 
 		// .at() method
 		// **EXPERIMENTAL FUNCTION**
