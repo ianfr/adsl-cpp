@@ -26,6 +26,9 @@ Basic DataFrameList operations (Ops.h):
 * dfl_filter
 * dfl_select
 
+Financial Analysis (TA.h):
+* dl_MA
+
 Machine learning (Dlib.h):
 * binaryClassifier
 * krlsReg
@@ -135,6 +138,19 @@ auto elem = df1
     + df_getData(0) // convert the 1st and only column to DataList
     + dl_getVal_dbl(3); // get the 4th value in the DataList
 cout << elem << endl;
+```
+
+# Technical Analysis (For Financial Data)
+## Moving Average
+The example below just fills a DataList with increasing squared values and calculates a 30-day simple moving average on those values using the `dl_MA` chainable function.
+To do an exponential moving average, replace `"SMA"` with `"EMA"`.
+```cpp
+vd testPricesVec;
+for (int i=0; i < 100; i++) {
+    testPricesVec.push_back(i * i);
+}
+DataList testPrices(&testPricesVec, DataType::DBL, "some test prices");
+cout << testPrices + dl_MA("SMA", 30) + dl_str << endl;
 ```
 
 # Plotting
