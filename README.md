@@ -7,6 +7,7 @@ The ADSL C++ project is a library for performant and straightforward data scienc
 * Data manipulation
 * Machine learning _(via Dlib)_
 * Time-series forecasting _(via ctsa)_
+* Time-series analysis _(via TA-Lib)_
 * Statistics _(via GSL)_
 * Data visualization _(via Gnuplot)_
 
@@ -22,11 +23,29 @@ ADSL uses a prefix & suffix system for consistent and readable code:
 * `_dbl` means floating-point, and
 * `_str` means strings.
 
-I intend to use ADSL to bolster my stock trading strategy, and that will guide the direction of the project.
-
 ## Examples
 
 *SEE **GUIDE.md** FOR EXAMPLES ON USING ADSL*
+
+## Installation
+
+Development and testing is happening in Ubuntu 22.04 under WSL2 with `g++` version 11.
+
+If you'd like to use a Docker container, see DOCKER.md. Otherwise, use the commands below:
+
+`cd; mkdir coding; cd coding && git clone https://github.com/ianfr/adsl-cpp && cd adsl-cpp`
+
+`bash tools/dependencies.sh`
+
+## Usage
+
+To get started with ADSL, download the repo and install dependencies as shown above. Then add `#include "~/coding/adsl-cpp/include/ADSL.h"` to your code.
+
+The example program *ADSL-CPP.cpp* (in *examples*) can be compiled with the _compile.sh_ Bash script. Any program you write can also be compiled by setting the appropriate `ADSL_MAIN_SRC` environment variable in the *compile.sh* script.
+
+For your own projects, I reccomend copying *compile.sh* and modifying it (since the location of ADSL is hard-coded). It would also be possible to use something like CMake based on *compile.sh*.
+
+Since data is loaded from disk every time you compile your code, for larger data sets it is  reccomended that you take advantage of the *ramdisk.sh* bash script, which essentially creates a folder in RAM that you should move your dataset(s) to with `cp FILE_NAME /mnt/adsl_ramdisk/FILE_NAME`. This option only makes sense if you have a large amount of RAM, however, because the dataset is still copied by ADSL into a DataFrame object. *In effect, using a ramdisk with ADSL results in **twice as much memory usage** for storing a dataset.*
 
 ## Behind ADSL's Chainable Functions
 
@@ -52,43 +71,10 @@ Thus, the user can supply a custom input `i` and the `+` pipe operator will only
 
 The outer lambda can take in any number of arguments - so long as they are captured inside the inner lambda's brackets `[ ]`. Outer arguments that are `DataFrame`s should be captured by reference for performance purposes in the inner lambda with a `&` like `[&df]`.
 
-## Installation
-
-Development and testing is happening in Ubuntu 21.10 with `g++` version 11.
-
-If you'd rather use a Docker container, see DOCKER.md. Otherwise, follow the steps below on your system:
-
-The following dependencies are required to be installed manually:
-* Gnuplot with `sudo apt install gnuplot`
-* Gfortran with `sudo apt install gfortran`
-* Intel TBB with `sudo apt install libtbb-dev`
-
-The following dependencies are required to be installed (I used the awesome [vcpkg](https://vcpkg.io/en/getting-started.html) package manager, and assume that the vcpkg repo is located in `$HOME/DEV/`):
-* The GNU Scientific Library (GSL): `./vcpkg install gsl`. [GSL](https://www.gnu.org/software/gsl/#subjects) is a C library with a large collection of numerical routines for everything from least-squares to simulated annealing.
-* Dlib: `./vcpkg install dlib`. [Dlib](http://dlib.net/ml.html) is a C++ library containing various numerical routines including many for ML.
-* Boost (date-time): `./vcpkg install boost-date-time`. Boost's Date & Time library provides functionality for working with dates, times, and strings.
-
-Installing ctsa:
-
-A compressed copy of the ctsa repo is included within ADSL and has to be uncompressed, placed in a folder called *ctsa*, and then built so that the *compile* Bash script can link against ctsa. To build ctsa, `cd` into *ctsa* and do `cmake .` followed by running `make`.
-
-Installing TA-Lib:
-
-A compressed copy of the TA-Lib repo is included within ADSL and has to be uncompressed, placed in a folder called *ta-lib-0.4.0-msvc*, and then built so that the *compile* Bash script can link against TA-Lib. To build TA-lib, cd into *ta-lib-0.4.0-msvc/ta-lib/c/make/csr/linux/g++/* and do `cmake .` followed by running `make`.
-
-## Usage
-
-To get started with ADSL, download the repo and stick it inside of your project. Then add `#include "adsl-cpp/Includes/ADSL.h"`to your code and install the dependencies as described above.
-
-The example program *ADSL-CPP.cpp* can be compiled with the _compile.sh_ Bash script. Any program you write can also be compiled by setting the appropriate environment variable in the *compile.sh* script. You can also modify the Bash script to suit your own projects.
-
-Since data is loaded from disk every time you compile your code, for larger data sets it is  reccomended that you take advantage of the *ramdisk.sh* Bash script, which essentially creates a folder in RAM that you should move your dataset(s) to with `cp FILE_NAME /mnt/adsl_ramdisk/FILE_NAME`. This option only makes sense if you have a large amount of RAM, however, because the dataset is still copied by ADSL into a DataFrame object.
-
-
 ## Work in Progress:
 * Improving plotting capability built around Gnuplot
 * Porting statistical functions from GSL
 * Improve ML with Dlib (specifically, re-implement KRLS regression)
+* More time-series analysis functions from [TA-Lib](https://www.ta-lib.org/d_api/d_api.html)
 
 ## Future Work:
-* Incorporate financial time-series analysis functions from [TA-Lib](https://www.ta-lib.org/d_api/d_api.html)
