@@ -3,6 +3,7 @@
 // maybe make friend classes that operate on a DataFrame with a lambda and return a DataFrame
 
 #include "TypesADSL.h"
+#include "TA_includes.h"
 
 #include <string>
 #include <vector>
@@ -16,8 +17,15 @@
 #include <filesystem>
 #include <regex>
 #include <cassert>
+#include <variant>
+#include <type_traits>
 
 namespace adsl {
+
+	// for alternative typing system
+	int TINT = 0;
+	double TDBL = 0.0;
+	std::string TSTR = "";
 
 	class DataList {
 	public:
@@ -92,6 +100,48 @@ namespace adsl {
 		DataList map_dbl(std::function<double(double)> action);
 		DataList map_str(std::function<std::string(std::string)> action);
 
+		// Moving Average
+		DataList calcMA(std::string maType, int period);
+
+		// Basic STL vector methods
+
+		// .at() method
+		// **EXPERIMENTAL FUNCTION**
+		// This function experiments with a new typing mechanism
+		// someDataList.at(2, TDBL), etc
+		template<typename T1, typename T2>
+		T2 at(T1 index, T2 dummyVal) {
+			if(std::is_same_v<T2, int>) {
+				if (this->type != INT) {
+					std::cout << "<<ERROR>> [at] mismatched types" << std::endl;
+					exit(1);
+				}
+				int ret = this->vals.at(index).intU;
+				return *(T2*)(void*)(&ret);
+			}
+			else if (std::is_same_v<T2, double>) {
+				if (this->type != DBL) {
+					std::cout << "<<ERROR>> [at] mismatched types" << std::endl;
+					exit(1);
+				}
+				double ret = this->vals.at(index).doubleU;
+				return *(T2*)(void*)(&ret);
+			} else { // STR
+				if (this->type != STR) {
+					std::cout << "<<ERROR>> [at] mismatched types" << std::endl;
+					exit(1);
+				}
+				std::string ret = this->vals.at(index).strU;
+				return *(T2*)(void*)(&ret);
+			}
+		}
+
+		// .at() methods
+		// Cover up the experimental typing above
+		int at_int(int i) {return at(i, TINT);}
+		double at_dbl(int i) {return at(i, TDBL);}
+		std::string at_str(int i) {return at(i, TSTR);}
+
 		// Function chaining operators
 		// DataList <- DataList
 		DataList operator+ (std::function<DataList(DataList&)> f) {
@@ -120,6 +170,18 @@ namespace adsl {
 		std::vector<std::string> operator+ (std::function<std::vector<std::string>(DataList&)> f) {
 			return f(*this);
 		}
+
+		// Basic STL vector methods
+		// To make development easy, implementation is here instead of outside
+		// auto at(int index) -> std::variant<int, double, std::string> {
+		// 	if (this->type == DataType::INT) {
+		// 		return this->vals.at(index).intU;
+		// 	} else if (this->type == DataType::DBL) {
+		// 		return this->vals.at(index).doubleU;
+		// 	} else { // DataType::STR
+		// 		return this->vals.at(index).strU;
+		// 	}
+		// }
 
 	};
 
@@ -267,6 +329,75 @@ namespace adsl {
 		}
 		return ret;
 	}
+
+	// Moving Average
+	// The DataList must have double values
+	DataList DataList::calcMA(std::string maType, int period) {
+		if (this->type != DataType::DBL) {
+			std::cout << "<<ERROR>> [calcMA] The DataList.type field must be DataType::DBL" << std::endl;;
+			exit(1);
+		}
+		double *dataVals = (double*) malloc(sizeof(double) * this->vals.size());
+		for (int i=0; i < this->vals.size(); i++) {
+			dataVals[i] = this->vals.at(i).doubleU;
+		}
+		double *out = (double*) malloc(sizeof(double) * this->vals.size());
+		int outBeg;
+		int outNbElement;
+
+		if (maType.compare("SMA") == 0) {
+			TA_RetCode retCode = TA_MA( 0, this->vals.size() - 1,
+				dataVals,
+				period, TA_MAType_SMA,
+				&outBeg, &outNbElement, &out[0] );
+		} else if (maType.compare("EMA") == 0) {
+			TA_RetCode retCode = TA_MA( 0, this->vals.size() - 1,
+				dataVals,
+				period, TA_MAType_EMA,
+				&outBeg, &outNbElement, &out[0] );
+		} else {
+			std::cout << "[calcMA] <<WARNING>> unrecognized moving average type, defaulting to TA_MAType_SMA" << std::endl;
+			TA_RetCode retCode = TA_MA( 0, this->vals.size() - 1,
+				dataVals,
+				period, TA_MAType_SMA,
+				&outBeg, &outNbElement, &out[0] );
+			maType = "SMA";
+		}
+		
+		vd outVec;
+		for( int i=0; i < outNbElement; i++ ) {
+			//printf( "Day %d = %f\n", outBeg+i, out[i] );
+			outVec.push_back(out[i]);
+		}
+
+		DataList ret(&outVec, DataType::DBL, maType + " " + (this->name));
+
+		return ret;
+		
+	}
+
+	// STL vector .at()
+	// int DataList::at_int(int index) {
+	// 	return this->vals.at(index).intU;
+	// }
+	// double DataList::at_dbl(int index) {
+	// 	return this->vals.at(index).doubleU;
+	// }
+	// std::string DataList::at_str(int index) {
+	// 	return this->vals.at(index).strU;
+	// }
+	// auto DataList::at(int index) {
+	// 	if (this->type == DataType::INT) {
+	// 		return this->vals.at(index).intU;
+	// 	} else if (this->type == DataType::DBL) {
+	// 		return this->vals.at(index).doubleU;
+	// 	} else if (this->type == DataType::STR) {
+	// 		return this->vals.at(index).intU;
+	// 	} else {
+	// 		std::cout << "<<ERROR>> [at] DataList does not have type INT, DBL, or STR" << std::endl;
+	// 		exit(1);
+	// 	}
+	// }
 
 
 	// DataFrame
