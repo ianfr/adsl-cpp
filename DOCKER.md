@@ -9,9 +9,9 @@ I have created a custom Docker image based on Ubuntu 20.04 hosted on Docker Hub.
 
 To install the Docker tool, see https://docs.docker.com/engine/install/ubuntu/
 
-To copy the (~3GB) custom image, just do `docker pull ifriedri/adsl-docker`. 
+To copy the (~3GB) custom image, just do `docker pull ifriedri/adsl`. 
 
-To run the container, just use `docker run -it ifriedri/adsl-docker`.
+To run the container, just use `docker run -it ifriedri/adsl`.
 
 ## Saving Your Work via Copying
 
@@ -24,7 +24,7 @@ using the command line from the Docker container.
 
 To mount a directory on your computer located at ~/Documents/MyStuff/MyCode/ to a directory on the container called /MyCode, just execute:
 
-`docker run -v ~/Documents/MyStuff/MyCode:/MyCode -it ifriedri/adsl-docker`
+`docker run -v ~/Documents/MyStuff/MyCode:/MyCode -it ifriedri/adsl`
 
 From within the container, you can then copy your code files back and forth into the adsl-cpp directory:
 
