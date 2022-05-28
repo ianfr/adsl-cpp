@@ -22,9 +22,9 @@ But, you'd probably like to write your own code that uses ADSL, and also save th
 Doing this is as simple as mounting a shared folder when you execute `docker run` and copying files back and forth
 using the command line from the Docker container.
 
-To mount a directory on your computer located at ~/Documents/MyStuff/MyCode/ to a directory on the container called /MyCode, just execute:
+To mount a directory on your computer located at ~/Documents/MyStuff/MyCode/ to a directory on the container called ~/MyCode, just execute:
 
-`docker run -v ~/Documents/MyStuff/MyCode:/MyCode -it ifriedri/adsl`
+`docker run -v ~/Documents/MyStuff/MyCode:/home/noroot/MyCode -it ifriedri/adsl`
 
 From within the container, you can then copy your code files back and forth into the adsl-cpp directory:
 
