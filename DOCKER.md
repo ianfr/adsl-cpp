@@ -28,9 +28,9 @@ To mount a directory on your computer located at ~/Documents/MyStuff/MyCode/ to 
 
 From within the container, you can then copy your code files back and forth into the adsl-cpp directory:
 
-`cp -r /MyCode ~/adsl-cpp` to copy all the files in MyCode from your computer to the container.
+`cp -r ~/MyCode ~/adsl-cpp` to copy all the files in MyCode from your computer to the container.
 
-Or, `mkdir /MyCode/Results; cp -r ~/adsl-cpp /MyCode/Results` to copy the entire adsl-cpp container folder to a new folder on your computer.
+Or, `mkdir ~/MyCode/Results; cp -r ~/adsl-cpp ~/MyCode/Results` to copy the entire adsl-cpp container folder to a new folder on your computer.
 
 (Don't forget to change `compile.sh` to reflect the name of the source code you want to compile and what you want the name of the executable to be).
 
