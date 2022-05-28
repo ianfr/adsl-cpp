@@ -4,7 +4,7 @@
 
 echo "Installing required Ubuntu packages..."
 
-sudo apt install cmake git g++ g++-11 gnuplot gfortran libtbb-dev curl zip unzip tar -y
+sudo apt install cmake git g++ g++-11 gnuplot gfortran libtbb-dev curl zip unzip tar pkg-config -y
 
 echo "Installing vcpkg c++ package manager in ~/DEV/vcpkg..."
 
