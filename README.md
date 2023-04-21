@@ -1,5 +1,5 @@
-# **A** **D**ata **S**cience **L**ibrary for C++
-![logo](logo.png)
+
+![logo](files/adsl.png)
 ## Introduction
 
 The ADSL C++ project is a library for performant and straightforward data science. ADSL is a framework for:
