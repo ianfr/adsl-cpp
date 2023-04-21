@@ -200,6 +200,9 @@ namespace adsl {
         return retFunc;
     };
 
+    // more readable alias for the above
+    auto df_getCol = df_getData;
+
     // Select relevant columns in a DataFrame
 	// DataFrame <- DataFrame
 	auto df_select = [](std::vector<std::string> nameVec) {

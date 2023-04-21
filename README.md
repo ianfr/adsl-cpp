@@ -72,6 +72,7 @@ Thus, the user can supply a custom input `i` and the `+` pipe operator will only
 The outer lambda can take in any number of arguments - so long as they are captured inside the inner lambda's brackets `[ ]`. Outer arguments that are `DataFrame`s should be captured by reference for performance purposes in the inner lambda with a `&` like `[&df]`.
 
 ## Work in Progress:
+* Expanding the `DataFrame` implementation
 * Improving plotting capability built around Gnuplot
 * Porting statistical functions from GSL
 * Improve ML with Dlib (specifically, re-implement KRLS regression)
