@@ -43,9 +43,11 @@ int main() {
         }
         return false;
     };
-    DataFrame tmp = testKrls.filter_rows(0, rowTest);
+    // DataFrame tmp = testKrls.filter_rows(0, rowTest);
 
-    std::cout << tmp.str() << std::endl;
+    // std::cout << tmp.str() << std::endl;
+
+    std::cout << testKrls + df_filter_rows(0, rowTest) + df_str << std::endl;
 
     cout << "Press Enter to exit... ";
     cin.get();

@@ -448,12 +448,10 @@ namespace adsl {
 		DataFrame deselect(std::vector<std::string> nameVec);
 		DataFrame combineV(DataFrame& df); 
 
-		// Filter; use method overloading
-		// template<class T>
+		// Filter
+		// Up to the user to make sure the predicate casts appropriately inside
+			// ex: [](void* x) {double a = *(double*)x; ...
 		DataFrame filter_rows(int col_ind, std::function<bool(void*)> predicate);
-		// DataFrame filter_rows(int col_ind, std::function<bool(double)> predicate);
-		// DataFrame filter_rows(int col_ind, std::function<bool(int)> predicate);
-		// DataFrame filter_rows(int col_ind, std::function<bool(std::string)> predicate);
 
 		// Function chaining operators
 
@@ -744,8 +742,6 @@ namespace adsl {
 		}
 	}
 
-	// template<class T>
-	// DataFrame DataFrame::filter_rows(int col_ind, std::function<bool(T)> predicate)
     DataFrame DataFrame::filter_rows(int col_ind, std::function<bool(void*)> predicate)
     {
 

@@ -231,6 +231,14 @@ namespace adsl {
 		return retFunc;
 	};
 
+    // Filter
+    auto df_filter_rows = [](int col_ind, std::function<bool(void*)> predicate) {
+        auto retFunc = [col_ind, predicate](DataFrame& df) {
+            return df.filter_rows(col_ind, predicate);
+        };
+        return retFunc;
+    };
+
     // DataFrameList Ops
 
     // Filter values in a DataFrameList based on a custom predicate
