@@ -71,6 +71,9 @@ namespace adsl {
 			}
 		}
 
+		// Length
+		int length() { return vals.size(); }
+
 		// String representation
 		std::string str();
 
@@ -445,6 +448,13 @@ namespace adsl {
 		DataFrame deselect(std::vector<std::string> nameVec);
 		DataFrame combineV(DataFrame& df); 
 
+		// Filter; use method overloading
+		// template<class T>
+		DataFrame filter_rows(int col_ind, std::function<bool(void*)> predicate);
+		// DataFrame filter_rows(int col_ind, std::function<bool(double)> predicate);
+		// DataFrame filter_rows(int col_ind, std::function<bool(int)> predicate);
+		// DataFrame filter_rows(int col_ind, std::function<bool(std::string)> predicate);
+
 		// Function chaining operators
 
 		// DataFrame <- DataFrame
@@ -733,5 +743,62 @@ namespace adsl {
 			return ret;
 		}
 	}
+
+	// template<class T>
+	// DataFrame DataFrame::filter_rows(int col_ind, std::function<bool(T)> predicate)
+    DataFrame DataFrame::filter_rows(int col_ind, std::function<bool(void*)> predicate)
+    {
+
+		DataFrame ret; // append row to this df if predicate is true for the given column
+
+		ret = *this; //copy
+
+		for (auto &col : ret.m_data) {
+			col.vals.clear();
+		}
+
+		auto col_type = m_data[col_ind].type;
+
+		if (col_type == adsl::DBL) {
+			for (int i=0; i < m_data[col_ind].length(); i++) {
+				double tmp = m_data[col_ind].getVal_dbl(i);
+				if (predicate(&tmp)) { // good row
+					// loop over columns in this row
+					for (int j=0; j < m_data.size(); j++) {
+						// append appropriate values
+						ret.m_data[j].vals.push_back(m_data[j].vals[i]); // DataEntry
+					}
+				}
+			}
+		}
+
+		if (col_type == adsl::INT) {
+			for (int i=0; i < m_data[col_ind].length(); i++) {
+				int tmp = m_data[col_ind].getVal_dbl(i);
+				if (predicate(&tmp)) { // good row
+					// loop over columns in this row
+					for (int j=0; j < m_data.size(); j++) {
+						// append appropriate values
+						ret.m_data[j].vals.push_back(m_data[j].vals[i]); // DataEntry
+					}
+				}
+			}
+		}
+
+		if (col_type == adsl::STR) {
+			for (int i=0; i < m_data[col_ind].length(); i++) {
+				std::string tmp = m_data[col_ind].getVal_str(i);
+				if (predicate(&tmp)) { // good row
+					// loop over columns in this row
+					for (int j=0; j < m_data.size(); j++) {
+						// append appropriate values
+						ret.m_data[j].vals.push_back(m_data[j].vals[i]); // DataEntry
+					}
+				}
+			}
+		}
+
+        return ret;
+    }
 
 }

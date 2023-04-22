@@ -36,6 +36,17 @@ int main() {
     double sqrt3_3 = krlsFit + adsl::evalFit({3,3});
     cout << "Sqrt of 3^2 + 3^2: " << sqrt3_3 << endl;
 
+    auto rowTest = [](void* x) {
+        double a = *(double*)x;
+        if (a > 50) {
+            return true;
+        }
+        return false;
+    };
+    DataFrame tmp = testKrls.filter_rows(0, rowTest);
+
+    std::cout << tmp.str() << std::endl;
+
     cout << "Press Enter to exit... ";
     cin.get();
 }
